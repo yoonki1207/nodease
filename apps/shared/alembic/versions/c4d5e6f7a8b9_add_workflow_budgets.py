@@ -4,7 +4,7 @@ Revision ID: c4d5e6f7a8b9
 Revises: e1a2b3c4d5f6
 Create Date: 2026-07-06 00:00:00.000000
 
-docs/features/budget-management: workflow 단위 월간 LLM 예산 저장 구조.
+Workflow 단위 월간 LLM 예산 저장 구조를 추가한다.
 """
 
 from typing import Sequence, Union

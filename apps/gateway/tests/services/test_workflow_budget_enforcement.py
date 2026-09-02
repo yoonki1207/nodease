@@ -1,8 +1,8 @@
 """예산 초과 실행 차단 helper와 배포/스케줄 경로 계약 테스트.
 
 TDD red phase: WorkflowBudgetService.ensure_workflow_budget_allows_execution이
-아직 없으므로 실패해야 한다. docs/features/budget-management/test_cases.md의
-"실행 차단 helper" / "실행 경로별 차단 연결" 계약을 검증한다.
+아직 없으므로 실패해야 한다. 실행 차단 helper와 실행 경로별 차단 연결 계약을
+검증한다.
 
 - BGT-REQ-030: exceeded workflow는 dispatch 전에 차단
 - BGT-REQ-031: 일관된 429 budget.exceeded, 응답에 금액 미노출

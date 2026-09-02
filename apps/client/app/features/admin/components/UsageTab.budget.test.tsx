@@ -1,5 +1,4 @@
 // UsageTab 예산 컬럼 확장(FR-051 진입점) 계약 테스트 — TDD red phase.
-// docs/features/budget-management/component_spec.md:
 // 비용 탭 테이블에 예산(USD)/사용률/상태 배지/예산 설정 버튼을 추가하고,
 // budget null은 "미설정"으로 표시한다. 예산 설정 버튼은 BudgetEditModal을 연다.
 import { afterEach, describe, expect, it, vi } from 'vitest';

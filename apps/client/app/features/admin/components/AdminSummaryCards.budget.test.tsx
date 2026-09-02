@@ -1,6 +1,5 @@
 // AdminSummaryCards 예산 카드 실데이터(FR-015) 계약 테스트 — TDD red phase.
-// docs/features/budget-management/api_spec.md GET /admin/summary 확장:
-// budget 블록의 위험 개수를 실제 데이터로 표시한다.
+// GET /admin/summary의 budget 블록 위험 개수를 실제 데이터로 표시한다.
 // null은 기존 "예산 미설정" 유지(기존 테스트가 보증).
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';

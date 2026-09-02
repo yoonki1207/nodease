@@ -4,7 +4,7 @@ Revision ID: d3e4f5a6b7c8
 Revises: d2e3f4a5b6c7
 Create Date: 2026-07-08 00:00:01.000000
 
-docs/features/chatbot-deployment: 챗봇 배포 타입 추가.
+챗봇 배포 타입을 추가한다.
 """
 
 from typing import Sequence, Union

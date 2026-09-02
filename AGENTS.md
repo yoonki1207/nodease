@@ -24,9 +24,9 @@ mbased는 기존 Moduly 코드를 리팩토링해 Nodease라는 기업 내부 AI
 - `apps/log_system/`: audit/trace/log 계열 비동기 worker.
 - `apps/sandbox/`: NSJail 기반 code execution sandbox.
 - `apps/shared/`: DB model, schema, 공통 service, tracing/audit utility.
-- `docs/`: 프로젝트 전체 요구사항, 아키텍처, 데이터 모델, 용어, ADR.
-- `docs/features/<feature-name>/`: 기능별 requirements, API, component, test case 문서.
-- `docs_old/`: 과거 문서와 역공학 자료. 참고용이며 active source of truth가 아니다.
+- `docs/`: 현재 전체가 비신뢰 상태다. 남아 있는 파일도 제품 요구사항, 아키텍처, API, 보안 정책 또는 릴리즈 판단의 근거로 사용하지 않는다.
+- `docs/demo/`, `docs/learning/`: 임시로 남긴 운영·학습 자료이며 제품 명세가 아니다.
+- `docs_old/`: 과거 문서와 역공학 자료이며 마찬가지로 비신뢰 상태다.
 - `tests/`: repo 루트 공통 테스트. DB/schema, service-level, RAG evaluation baseline, load test 도구를 포함한다.
 - `docker/`, `dev/`, `infra/`, `scripts/`: 배포, 로컬 개발, 운영 스크립트.
 
@@ -41,48 +41,14 @@ mbased는 기존 Moduly 코드를 리팩토링해 Nodease라는 기업 내부 AI
 - Infra: Docker Compose, Kubernetes, Helm.
 - Test: pytest, Vitest, Next build/lint.
 
-## 프로젝트 문서
+## 문서 신뢰 경계
 
-작업 전 반드시 관련 문서를 확인한다.
-
-- 제품 요구사항: `docs/PRD.md`
-- 전체 아키텍처: `docs/architecture.md`
-- 데이터 모델: `docs/data_model.md`
-- 용어 정의: `docs/glossary.md`
-- 설계 결정: `docs/decisions/`
-- 기능별 문서: `docs/features/<feature-name>/`
-
-문서 간 충돌이 있으면 일반적으로 다음 순서를 우선한다.
-
-1. `docs/decisions/`의 Accepted ADR
-2. `docs/PRD.md`
-3. `docs/architecture.md`
-4. `docs/data_model.md`
-5. `docs/features/<feature-name>/requirements.md`
-6. `docs/features/<feature-name>/api_spec.md`
-7. `docs/features/<feature-name>/component_spec.md`
-8. `docs/features/<feature-name>/test_cases.md`
-9. `docs_old/` 참고 자료
-
-`docs_old/`는 배경 이해와 누락 복구를 위한 참고 자료로만 사용한다. 현재 문서와 충돌하면 `docs/` 아래 active 문서를 기준으로 판단한다.
-
-`docs_old/`는 이관이 끝나면 삭제하는 임시 아카이브다.
-
-- 이관 완료 기준: 특정 영역의 `docs/` 문서가 원본 내용을 흡수하고 코드 대조 검증까지 마쳐 Draft를 벗어나면, `docs_old/`의 해당 원본 문서를 삭제한다.
-- 삭제 전 `docs/` 안에서 해당 원본을 가리키는 링크를 확인하고, 남아 있으면 새 문서로 바꾸거나 plain text로 정리한다 (이관된 ADR의 `docs_old/` 링크는 역사 기록이므로 끊겨도 무방하다).
-- 모든 영역의 이관이 끝나면 `docs_old/` 디렉토리 자체를 삭제한다. 전체 내용은 아카이브 커밋(eedd820)으로 git history에 남는다.
-
-## 문서 작성 규칙
-
-- 제품 전체 결정은 `docs/`에 둔다.
-- 기능별 세부사항은 `docs/features/<feature-name>/`에 둔다.
-- 공통 용어는 feature 문서에서 재정의하지 말고 `docs/glossary.md`를 참조한다.
-- feature 문서는 `requirements.md`, `api_spec.md`, `component_spec.md`, `test_cases.md` 4종을 기본으로 한다.
-- 동작, API, UI flow, 권한, 테스트 기대값이 바뀌면 관련 feature 문서를 함께 수정한다.
-- 추상적인 설명보다 검증 가능한 요구사항과 테스트 가능한 문장을 우선한다.
-- 문서 메타 블록은 `Status`만 유지한다. `requirements.md`는 `Related Features`를 추가한다. `Owner`, `Last Updated`는 넣지 않는다. 작성자와 수정 시점은 git history가 답한다.
-- 코드 검증이 필요한 문서에는 `Verified Against: <branch> @ <commit>` 형식을 사용한다. 실제 코드 확인 없이 이 값을 갱신하지 않는다.
-- secret value, credential 원문, API key, token, `encrypted_config` 값/content, raw payload는 문서와 로그에 노출하지 않는다.
+- `docs/`와 `docs_old/`의 모든 내용은 재검증 전까지 비권위·비신뢰 자료다. 기존 `Active`, `Accepted`, `Verified Against`, `Source of Truth` 표시는 현재 권위를 만들지 않는다.
+- 현재 동작은 체크아웃한 코드, 실행 가능한 테스트, DB migration과 배포 설정에서 확인한다.
+- 제품 의도와 신규 요구사항은 사용자의 명시적 결정 없이 기존 문서에서 추론하지 않는다.
+- `docs/demo/`와 `docs/learning/`은 운영·학습 참고용으로만 사용할 수 있으며 제품 명세나 릴리즈 증거로 인용하지 않는다.
+- 향후 문서는 하나의 선택된 코드 revision에 대한 실제 검증과 별도 승인을 모두 거친 뒤에만 source of truth로 선언할 수 있다.
+- secret value, credential 원문, API key, token, `encrypted_config` 값/content와 raw payload는 주석, 로그, 테스트 fixture와 남겨진 참고 자료에 노출하지 않는다.
 
 ## 코딩 컨벤션
 
@@ -92,7 +58,7 @@ mbased는 기존 Moduly 코드를 리팩토링해 Nodease라는 기업 내부 AI
 - React는 함수 컴포넌트와 hooks 중심으로 작성한다.
 - UI는 `apps/client/`의 기존 컴포넌트, hook, 상태 관리 패턴을 우선 따른다.
 - 권한별 UI는 프론트에서 UX 차단을 하되, 최종 보안 판단은 Gateway/API가 수행한다고 전제한다.
-- API request/response 타입과 화면 상태가 문서와 어긋나면 문서 또는 구현 중 무엇이 기준인지 먼저 확인한다.
+- API request/response 타입과 화면 상태가 어긋나면 Gateway 구현, 공유 타입과 실행 가능한 테스트를 대조하고 제품 의도가 필요한 경우 사용자 결정을 요청한다.
 
 ### Python / Backend
 
@@ -133,7 +99,7 @@ mbased는 기존 Moduly 코드를 리팩토링해 Nodease라는 기업 내부 AI
 
 ### 보호 리소스 기능 완결성
 
-다음 중 하나에 해당하는 기능은 `docs/engineering/protected-resource-feature-completion.md`를 적용한다.
+다음 중 하나에 해당하는 기능은 아래 보호 리소스 완결성 검토를 적용한다.
 
 - 보호 리소스 ID 또는 credential reference를 graph, 설정, deployment 등 durable data에 저장한다.
 - user/team 권한, organization scope, owner 또는 `use`/`manage` 권한을 판정한다.
@@ -141,36 +107,35 @@ mbased는 기존 Moduly 코드를 리팩토링해 Nodease라는 기업 내부 AI
 - preflight와 runtime/background 실행이 같은 리소스를 서로 다른 시점에 사용한다.
 - secret, PII, 외부 provider 호출 또는 외부 부수효과를 다룬다.
 
-적용 대상 작업은 저장·관리 API/UI·preflight·runtime/background·lifecycle·audit/redaction·테스트 경계를 하나의 기능 단위로 검토한다. 각 경계는 `완료`, `해당 없음` 또는 `후속 이슈`로 기록하고 코드, 테스트, 문서 또는 이슈를 증거로 연결한다. 권한 우회, secret 노출, 외부 I/O 이전 fail-closed 실패 또는 기존 관리 경로 단절을 만드는 필수 경계는 후속 이슈로 미룬 채 병합하지 않는다.
+적용 대상 작업은 저장·관리 API/UI·preflight·runtime/background·lifecycle·audit/redaction·테스트 경계를 하나의 기능 단위로 검토한다. 각 경계는 `완료`, `해당 없음` 또는 `후속 이슈`로 기록하고 코드, 테스트 또는 이슈를 증거로 연결한다. 권한 우회, secret 노출, 외부 I/O 이전 fail-closed 실패 또는 기존 관리 경로 단절을 만드는 필수 경계는 후속 이슈로 미룬 채 병합하지 않는다.
 
 단순 문서 교정, 무상태 내부 helper 또는 해당 경계에 영향을 주지 않는 변경은 비적용 사유만 기록한다. 모든 테스트를 반복 실행하는 것이 목적이 아니며, 실제 소비 경계와 상태 전이를 검증하는 최소 테스트를 선택한다.
 
 ### 반드시 지켜야 할 것
 
-- 새 기능 구현 전 관련 `docs/features/<feature-name>/test_cases.md`를 확인하고, 필요한 테스트를 먼저 추가하거나 갱신한다.
+- 새 기능 구현 전 현재 코드와 테스트에서 관련 계약을 확인하고, 필요한 테스트를 먼저 추가하거나 갱신한다.
 - 권한이 필요한 API는 resource permission 정책을 확인하고, 권한 없는 접근을 API와 실행 경로 모두에서 차단한다.
 - workflow 생성, 저장, 실행, 배포의 기존 경로가 깨지지 않도록 한다.
 - LLM credential, deployment secret, trace payload, audit metadata를 다룰 때 secret 원문이 응답이나 로그에 노출되지 않도록 확인한다.
-- API 변경 시 `api_spec.md`, UI 변경 시 `component_spec.md`, 테스트 기대값 변경 시 `test_cases.md`를 함께 갱신한다.
-- 중요한 정책 또는 아키텍처 변경은 `docs/decisions/`에 ADR로 남긴다.
+- API·UI·공유 계약 변경은 영향을 받는 코드 타입과 실행 가능한 테스트를 함께 갱신한다.
+- 중요한 정책 또는 아키텍처 변경에 제품 판단이 필요하면 기존 문서를 근거로 삼지 말고 사용자에게 명시적 결정을 요청한다.
 
 ### 하지 말아야 할 것
 
 - 명세에 없는 기능을 임의로 추가하지 않는다.
-- `docs_old/`의 내용을 active source of truth처럼 사용하지 않는다.
-- feature 문서에서 Organization, Workflow, Agent, Knowledge 같은 공통 용어를 새로 정의하지 않는다.
-- secret value, API key, token, credential 원문, raw payload를 문서, 로그, 테스트 fixture에 남기지 않는다.
+- 비신뢰 문서의 `Active`, `Accepted`, `Verified Against` 표시를 현재 계약의 증거로 사용하지 않는다.
+- secret value, API key, token, credential 원문, raw payload를 주석, 로그, 테스트 fixture와 참고 자료에 남기지 않는다.
 - 대규모 리팩터링이나 schema 재설계를 기능 구현과 섞지 않는다.
 - 권한 차단을 프론트 UI만으로 처리하지 않는다.
 
 ### 경계 규칙
 
 - `apps/gateway/`, `apps/shared/`, `apps/workflow_engine/`, `apps/log_system/`, `apps/sandbox/` 작업 시 프론트 변경이 꼭 필요하지 않으면 `apps/client/`를 수정하지 않는다.
-- `apps/client/` 작업 시 API 계약 변경이 필요하면 먼저 `docs/features/<feature-name>/api_spec.md`와 Gateway 영향을 확인한다.
+- `apps/client/` 작업 시 API 계약 변경이 필요하면 Gateway 구현, 공유 타입과 관련 테스트 영향을 먼저 확인한다.
 - `apps/shared/` 변경은 Gateway, Workflow Engine, Log System, Sandbox에 영향을 줄 수 있으므로 관련 테스트 범위를 넓힌다.
 - Workflow Engine은 가능한 경우 user, organization, workflow, run, node 식별자를 포함한 execution context를 전달받아야 한다.
 - 공통 tracing/audit service가 trace 접근과 payload 처리의 경계다.
-- deployment/runtime 변경은 `docker/`, `dev/`, `infra/`, `scripts/`, `docs/architecture.md`의 정합성을 함께 확인한다.
+- deployment/runtime 변경은 `docker/`, `dev/`, `infra/`, `scripts/`와 실제 서비스 구성의 정합성을 함께 확인한다.
 
 ## Code Review Rules
 
@@ -195,7 +160,7 @@ P2/P3는 재현 가능한 실패 조건이나 구체적인 운영·회귀 위험
 - DB model, migration, seed, relation과 query 변경은 기존 데이터 호환성, transaction 경계, concurrency, nullable/index/FK/cascade와 rollback 영향을 확인한다.
 - workflow node, Celery task, Redis pub/sub, schedule과 background job은 중복 실행, race, retry, idempotency, lease/fencing과 부분 성공 가능성을 확인한다.
 - audit, tracing, RAG, credential, deployment secret과 raw payload 변경은 secret·PII가 응답, 로그, trace, audit와 fixture에 남지 않는지 확인한다.
-- API 또는 공유 계약 변경은 영향을 받는 Client, Gateway, Workflow Engine, Log System, Sandbox, 공식 문서와 테스트를 필요한 범위에서 함께 대조한다.
+- API 또는 공유 계약 변경은 영향을 받는 Client, Gateway, Workflow Engine, Log System, Sandbox와 실행 가능한 테스트를 필요한 범위에서 함께 대조한다.
 
 ### Finding 품질
 

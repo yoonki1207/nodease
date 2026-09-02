@@ -1,5 +1,4 @@
 // BudgetEditModal(FR-051 관리자 예산 설정/수정 UI) 계약 테스트 — TDD red phase.
-// docs/features/budget-management/component_spec.md:
 // 초기값 로드(404 → 신규 폼), 0 이하 입력 차단, 저장 성공 시 refetch 콜백,
 // 403/422 오류 표시.
 import { afterEach, describe, expect, it, vi } from 'vitest';

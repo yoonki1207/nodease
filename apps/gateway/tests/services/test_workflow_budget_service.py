@@ -1,7 +1,7 @@
 """WorkflowBudgetService(FR-051, budget-management) 계약 테스트.
 
 TDD red phase: 서비스와 AuditAction 상수가 아직 없으므로 전부 실패해야 한다.
-docs/features/budget-management/test_cases.md의 Unit Tests 계약을 검증한다.
+예산 서비스의 단위 계약을 검증한다.
 
 - 판정 함수: 80%/100% 경계, Decimal 정밀도, 비활성/0 이하 제외 (BGT-REQ-010~012)
 - 당월 집계: KST 달력 월 [start, end), NULL cost 0 합산, now 주입 (BGT-REQ-011)

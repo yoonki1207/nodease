@@ -1,6 +1,5 @@
 """create_run_log가 conversation_id를 WorkflowRun에 저장하는지 검증.
 
-docs/features/chatbot-deployment/test_cases.md:
 - 챗봇 배포의 방문자별 대화 격리를 위해, execution_context에서 넘어온
   conversation_id가 WorkflowRun.conversation_id 컬럼에 저장되어야 한다.
 """

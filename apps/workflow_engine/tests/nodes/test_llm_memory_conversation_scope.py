@@ -1,6 +1,5 @@
 """LLM 노드 기억 조회 스코프 테스트.
 
-docs/features/chatbot-deployment/test_cases.md:
 - execution_context에 conversation_id가 있으면(챗봇 공개 실행 등) 기억 조회는
   workflow_id + conversation_id로 격리되고 user_id 필터는 사용하지 않는다.
   (공개 실행은 user_id가 앱 소유자로 고정되어 격리 기준이 될 수 없다.)

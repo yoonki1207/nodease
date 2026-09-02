@@ -1,6 +1,5 @@
 """챗봇 배포 공개 실행 경로의 conversation_id 관통 + 기억모드 강제 계약 테스트.
 
-docs/features/chatbot-deployment/test_cases.md:
 - 챗봇 배포(DeploymentType.CHATBOT)는 클라이언트 값과 무관하게 memory_mode를 강제 ON.
 - inputs 안의 conversation_id / memory_mode는 dispatch 전에 pop되어 워크플로우
   입력을 오염시키지 않고, execution_context로만 전달된다.

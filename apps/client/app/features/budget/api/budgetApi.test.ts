@@ -1,5 +1,5 @@
 // budgetApi(FR-051 관리자 예산 API 클라이언트) 계약 테스트 — TDD red phase.
-// docs/features/budget-management/api_spec.md의 GET/PUT /admin/workflow-budgets/{workflow_id}.
+// GET/PUT /admin/workflow-budgets/{workflow_id} 동작을 검증한다.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/apiClient', () => ({

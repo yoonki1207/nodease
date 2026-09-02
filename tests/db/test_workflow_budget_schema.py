@@ -1,7 +1,5 @@
 """workflow_budgets 스키마 계약 테스트.
 
-docs/features/budget-management/requirements.md의 저장 구조 요구를 검증한다.
-
 - BGT-REQ-001~002: workflow당 최대 1개 예산, 최신 상태만 유지 (UNIQUE(workflow_id))
 - BGT-REQ-004: organization scope 정합 — 예산 row의 organization_id는
   대상 workflow의 organization_id와 일치해야 한다 (composite FK)

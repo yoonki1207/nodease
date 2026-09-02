@@ -1,5 +1,4 @@
 // 예산 초과 실행 차단 UX 헬퍼 계약 테스트 — TDD red phase.
-// docs/features/budget-management/component_spec.md:
 // - 내 워크플로우 목록: exceeded면 실행 진입 차단 + tooltip (UX 보조, 최종 차단은 Gateway)
 // - 테스트 실행: 429 budget.exceeded 응답을 일반 오류와 구분해 안내
 import { describe, expect, it } from 'vitest';

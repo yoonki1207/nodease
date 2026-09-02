@@ -74,7 +74,7 @@ flowchart LR
 | `apps/sandbox/`                         | NSJail 기반 Python code 실행 격리                                            |
 | `docker/`, `dev/`, `infra/`, `scripts/` | 통합 컨테이너, 로컬 개발, provider-neutral Helm과 운영 script                |
 
-자세한 서비스 경계와 요청 흐름은 [Architecture 문서](./docs/architecture.md)를 기준으로 합니다.
+세부 서비스 경계와 요청 흐름은 현재 코드와 실행 가능한 테스트를 기준으로 확인합니다. `docs/`는 재검증 전까지 제품·아키텍처 판단 근거로 사용하지 않습니다.
 
 ## Technical Challenges
 
@@ -93,7 +93,7 @@ flowchart LR
 | Infrastructure | Docker Compose, provider-neutral Kubernetes Helm                                    |
 | Test           | pytest, Vitest, ESLint, Next.js build                                               |
 
-공식 배포 artifact는 Docker Compose와 provider-neutral Helm chart입니다. EKS 전용 provisioning·raw manifest·CD는 현재 지원하지 않으며, 자세한 경계는 [ADR-0065](./docs/decisions/ADR-0065-eks-support-surface-removal.md)를 따릅니다.
+현재 저장소가 제공하는 배포 artifact는 Docker Compose와 provider-neutral Helm chart입니다. EKS 전용 provisioning·raw manifest·CD는 저장소에 포함하지 않습니다.
 
 ## Start in development environment
 

@@ -4,8 +4,8 @@ Revision ID: d2e3f4a5b6c7
 Revises: c4d5e6f7a8b9, fa2b3c4d5e6f
 Create Date: 2026-07-08 00:00:00.000000
 
-docs/features/chatbot-deployment: 챗봇 배포의 방문자별 대화 격리를 위한
-workflow_runs.conversation_id 컬럼 추가. 동시에 기존 두 마이그레이션 head
+챗봇 배포의 방문자별 대화 격리를 위한 workflow_runs.conversation_id 컬럼을
+추가한다. 동시에 기존 두 마이그레이션 head
 (c4d5e6f7a8b9, fa2b3c4d5e6f)를 단일 head로 병합한다.
 """
 

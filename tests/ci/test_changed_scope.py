@@ -14,7 +14,7 @@ def test_docs_only_keeps_runtime_jobs_disabled():
     scope = classify_paths(
         [
             "docs/README.md",
-            "docs/features/workflow/requirements.md",
+            "docs/demo/local-demo-db.md",
             "docs/examples/sample.py",
         ]
     )

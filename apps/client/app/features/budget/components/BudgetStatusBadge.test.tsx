@@ -1,6 +1,5 @@
 // BudgetStatusBadge(공용, FR-052) 계약 테스트 — TDD red phase.
-// docs/features/budget-management/component_spec.md:
-// status별 라벨(정상/위험/초과)과 사용률 % 정수 반올림 표시(표시 직전 1회 반올림).
+// status별 라벨(정상/위험/초과)과 사용률 % 정수 반올림 표시를 검증한다.
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 

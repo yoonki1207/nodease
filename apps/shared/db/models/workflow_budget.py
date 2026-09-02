@@ -21,7 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class WorkflowBudget(Base):
-    """workflow 단위 월간 LLM 예산 (docs/features/budget-management).
+    """workflow 단위 월간 LLM 예산.
 
     workflow당 최대 1 row로 최신 설정만 유지한다. 비활성화는 row 삭제가 아니라
     is_enabled=false로 표현한다. organization_id는 대상 workflow의
