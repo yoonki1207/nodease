@@ -185,6 +185,9 @@ def _create_resources(ids, *, user_id, organization_id, candidates, judge_model)
     from apps.shared.db.models.workflow_deployment import DeploymentType, WorkflowDeployment
     from apps.shared.db.session import SessionLocal
     from apps.workflow_engine.services.model_routing_bootstrap import downstream_contract_from_graph
+    from apps.workflow_engine.services.model_routing_judge_first_policy import (
+        build_judge_first_active_policy,
+    )
     from apps.workflow_engine.services.model_routing_learner_store import ModelRoutingLearnerStore
 
     auto_graph = _graph(model_id=judge_model, automatic=True, fallback=HIGH_MODEL)
@@ -236,13 +239,14 @@ def _create_resources(ids, *, user_id, organization_id, candidates, judge_model)
             deployment_id=ids.automatic, node_id=NODE_ID, enabled=True, status="active",
             policy_version="persisted-verification-v1", learner_id=learner.id,
             judge_user_id=user_id, execution_subject_user_id=user_id,
-            refresh_every_runs=1000, active_policy={
-                "strategy_id": "judge_bootstrap_incremental_v1",
-                "default_model_id": judge_model,
-                "fallback_model_id": HIGH_MODEL,
-                "judge_model_id": judge_model,
-                "candidate_model_ids": list(candidates),
-            },
+            refresh_every_runs=1000,
+            active_policy=build_judge_first_active_policy(
+                policy_version="persisted-verification-v1",
+                default_model_id=judge_model,
+                fallback_model_id=HIGH_MODEL,
+                candidate_model_ids=candidates,
+                judge_model_id=judge_model,
+            ),
         ))
         db.commit()
         return learner.id
@@ -361,6 +365,12 @@ def _snapshot(ids, learner_id) -> dict[str, Any]:
         artifact = (snapshot or {}).pop("local_requirement_artifact", None)
         return {
             "learner_id": str(learner_id),
+            "policy_enabled": bool(policy and policy.enabled),
+            "active_version_id": (
+                str(policy.active_learner_version_id)
+                if policy and policy.active_learner_version_id
+                else None
+            ),
             "active_version": (snapshot or {}).get("active_version"),
             "mode": (snapshot or {}).get("mode"),
             "judged_request_count": (snapshot or {}).get("judged_request_count", 0),
@@ -439,7 +449,12 @@ def _execute_seed(*, cases, seed, ledger, user_id, organization_id, judge_model,
         _record_training_run(result["run_id"])
     _train_all_pending(learner_id)
     before = _snapshot(ids, learner_id)
-    ready = before["mode"] == "local_first" and before["active_version"] is not None
+    ready = (
+        before["policy_enabled"]
+        and before["mode"] == "local_first"
+        and before["active_version"] is not None
+        and before["active_version_id"] is not None
+    )
     if not ready:
         return {
             "seed": seed, "namespace": str(ids.namespace),
@@ -481,8 +496,21 @@ def _execute_seed(*, cases, seed, ledger, user_id, organization_id, judge_model,
         })
     after = _snapshot(ids, learner_id)
     assessment = assess_holdout(
-        rows, expected_ids={case.case_id for case in holdout}, before=before, after=after,
-        persisted_activation=before["active_version"] is not None,
+        rows,
+        expected_cases={
+            case.case_id: {
+                "difficulty": case.difficulty,
+                "gold": dict(case.requirements),
+            }
+            for case in holdout
+        },
+        before=before,
+        after=after,
+        persisted_activation=(
+            before["policy_enabled"]
+            and before["active_version"] is not None
+            and before["active_version_id"] is not None
+        ),
     )
     return {
         "seed": seed, "namespace": str(ids.namespace),

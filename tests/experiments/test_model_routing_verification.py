@@ -28,13 +28,35 @@ def healthy_rows():
     ]
 
 
+def registered_cases(rows=None):
+    rows = healthy_rows() if rows is None else rows
+    return {
+        row["case_id"]: {
+            "difficulty": row["difficulty"],
+            "gold": deepcopy(row["gold"]),
+        }
+        for row in rows
+    }
+
+
+def healthy_snapshot(**overrides):
+    snapshot = {
+        "active_version": 1,
+        "artifact_hash": "fixed",
+        "judged_request_count": 300,
+        "learner_id": "learner-1",
+    }
+    snapshot.update(overrides)
+    return snapshot
+
+
 def assess(rows, **kwargs):
     return assess_holdout(
         rows,
-        expected_ids={row["case_id"] for row in healthy_rows()},
-        before={"version": 1, "artifact_hash": "fixed", "labels": 300},
-        after={"version": 1, "artifact_hash": "fixed", "labels": 300},
-        persisted_activation=True,
+        expected_cases=kwargs.pop("expected_cases", registered_cases()),
+        before=kwargs.pop("before", healthy_snapshot()),
+        after=kwargs.pop("after", healthy_snapshot()),
+        persisted_activation=kwargs.pop("persisted_activation", True),
         **kwargs,
     )
 
@@ -63,7 +85,11 @@ def test_missing_or_duplicate_evaluations_are_not_dropped_from_denominator():
 
 def test_artifact_change_invalidates_holdout():
     rows = healthy_rows()
-    result = assess_holdout(rows, expected_ids={r["case_id"] for r in rows}, before={"hash": "a"}, after={"hash": "b"}, persisted_activation=True)
+    result = assess(
+        rows,
+        before=healthy_snapshot(artifact_hash="a"),
+        after=healthy_snapshot(artifact_hash="b"),
+    )
     assert result["verdict"] == "INCOMPLETE"
     assert "state_changed_during_holdout" in result["incomplete"]
 
@@ -85,8 +111,76 @@ def test_single_prediction_is_detected_without_requiring_uniform_model_shares():
 
 def test_missing_persisted_activation_never_passes():
     rows = healthy_rows()
-    result = assess_holdout(rows, expected_ids={r["case_id"] for r in rows}, before={}, after={}, persisted_activation=False)
+    result = assess(rows, persisted_activation=False)
     assert result["verdict"] == "INCOMPLETE"
+
+
+@pytest.mark.parametrize("field", ["active_version", "artifact_hash", "judged_request_count", "learner_id"])
+def test_persisted_snapshot_requires_backend_identity_fields(field):
+    snapshot = healthy_snapshot()
+    del snapshot[field]
+    result = assess(healthy_rows(), before=snapshot, after=deepcopy(snapshot))
+    assert result["verdict"] == "INCOMPLETE"
+    assert "persisted_snapshot_invalid" in result["incomplete"]
+
+
+@pytest.mark.parametrize("field", ["decision_source", "model_id"])
+def test_complete_evidence_requires_source_and_model_per_case(field):
+    rows = healthy_rows()
+    rows[0][field] = None
+    result = assess(rows)
+    assert result["verdict"] == "INCOMPLETE"
+    assert "routing_evidence_missing" in result["incomplete"]
+
+
+def test_unregistered_or_altered_case_evidence_is_incomplete():
+    rows = healthy_rows()
+    rows[0]["gold"]["task_complexity"] = 3
+    result = assess(rows)
+    assert result["verdict"] == "INCOMPLETE"
+    assert "case_contract_mismatch" in result["incomplete"]
+
+    rows = healthy_rows()
+    rows[0]["difficulty"] = "high"
+    result = assess(rows)
+    assert result["verdict"] == "INCOMPLETE"
+    assert "case_contract_mismatch" in result["incomplete"]
+
+    rows = healthy_rows()
+    rows[0]["case_id"] = "invented-case"
+    result = assess(rows)
+    assert result["verdict"] == "INCOMPLETE"
+    assert "missing_or_duplicate_cases" in result["incomplete"]
+
+
+def test_holdout_without_level_three_cases_is_incomplete():
+    rows = healthy_rows()
+    for row in rows:
+        if row["gold"]["decision_impact"] == 3:
+            row["gold"]["decision_impact"] = 2
+            row["predicted"]["decision_impact"] = 2
+    result = assess(rows, expected_cases=registered_cases(rows))
+    assert result["verdict"] == "INCOMPLETE"
+    assert "high_risk_cases_missing" in result["incomplete"]
+
+
+@pytest.mark.parametrize("field", ["quality_score", "mid_score", "high_score"])
+def test_boolean_quality_scores_are_not_numeric_evidence(field):
+    rows = healthy_rows()
+    rows[0][field] = True
+    result = assess(rows)
+    assert result["verdict"] == "INCOMPLETE"
+    assert "quality_evaluation_missing" in result["incomplete"]
+
+
+@pytest.mark.parametrize("axis", ["task_complexity", "decision_impact", "evidence_synthesis"])
+def test_each_constant_prediction_axis_is_named_as_collapse(axis):
+    rows = healthy_rows()
+    for row in rows:
+        row["predicted"][axis] = 2
+    result = assess(rows)
+    assert result["verdict"] == "FAIL"
+    assert f"{axis}_collapse" in result["failures"]
 
 
 def test_paired_bootstrap_is_reproducible_and_checks_each_baseline():

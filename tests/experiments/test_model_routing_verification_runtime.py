@@ -163,8 +163,10 @@ def test_seed_readiness_failure_does_not_enter_holdout_or_quality(monkeypatch):
         runtime,
         "_snapshot",
         lambda *args, **kwargs: {
+            "policy_enabled": True,
             "mode": "judge_first",
             "active_version": None,
+            "active_version_id": None,
             "judged_request_count": 300,
         },
     )
@@ -185,6 +187,79 @@ def test_seed_readiness_failure_does_not_enter_holdout_or_quality(monkeypatch):
     assert len(executed) == 300
     assert result["verdict"] == "FAIL"
     assert result["rows"] == []
+
+
+def test_seed_assessment_receives_preregistered_holdout_cases(monkeypatch):
+    import scripts.model_routing_verification_runtime as runtime
+
+    cases = _cases()
+    learner_id = uuid4()
+    monkeypatch.setattr(runtime, "_create_resources", lambda *args, **kwargs: learner_id)
+    monkeypatch.setattr(runtime, "_graph", lambda **kwargs: {})
+    monkeypatch.setattr(runtime, "_record_training_run", lambda _run_id: None)
+    monkeypatch.setattr(runtime, "_train_all_pending", lambda _learner_id: None)
+    monkeypatch.setattr(
+        runtime,
+        "_snapshot",
+        lambda *args, **kwargs: {
+            "policy_enabled": True,
+            "mode": "local_first",
+            "active_version": 1,
+            "active_version_id": str(uuid4()),
+            "artifact_hash": "frozen",
+            "judged_request_count": 300,
+            "learner_id": str(learner_id),
+        },
+    )
+
+    def fake_run(case, *, arm, **kwargs):
+        return {
+            "run_id": uuid4(),
+            "text": "synthetic",
+            "routing": {
+                "decision_source": "local_router",
+                "selected_model": "gpt-5.4-mini",
+                "decision_factors": {
+                    "task_requirements": dict(case.requirements),
+                    "local_confidence": 0.99,
+                },
+            },
+        }
+
+    monkeypatch.setattr(runtime, "_run_workflow", fake_run)
+    captured = {}
+
+    def fake_assess(rows, **kwargs):
+        captured.update(kwargs)
+        return {"verdict": "PASS", "failures": [], "incomplete": [], "metrics": {}}
+
+    monkeypatch.setattr(runtime, "assess_holdout", fake_assess)
+    result = runtime._execute_seed(
+        cases=cases,
+        seed=17,
+        ledger=object(),
+        user_id=uuid4(),
+        organization_id=uuid4(),
+        judge_model="gpt-5.4-mini",
+        quality_model="gpt-5.4",
+        candidate_models=["gpt-5.4-mini", "gpt-5.6-sol"],
+        quality_callback=lambda *args, **kwargs: {
+            arm: {"score": 95.0, "pass": True}
+            for arm in ("automatic", "mid", "high")
+        },
+    )
+
+    expected = {
+        case.case_id: {
+            "difficulty": case.difficulty,
+            "gold": dict(case.requirements),
+        }
+        for case in cases
+        if case.split == "holdout"
+    }
+    assert result["verdict"] == "PASS"
+    assert captured["expected_cases"] == expected
+    assert "expected_ids" not in captured
 
 
 @pytest.mark.parametrize(

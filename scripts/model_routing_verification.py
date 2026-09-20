@@ -38,14 +38,25 @@ def paired_score_interval(differences: list[float]) -> list[float]:
 
 
 def prediction_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    def valid_axis_values(value: Any) -> bool:
+        return isinstance(value, dict) and all(
+            isinstance(value.get(key), int)
+            and not isinstance(value.get(key), bool)
+            and 0 <= value[key] <= 3
+            for key in AXES
+        )
+
     count = len(rows)
-    available = [row for row in rows if isinstance(row.get("predicted"), dict) and all(key in row["predicted"] for key in AXES)]
+    gold_available = [row for row in rows if valid_axis_values(row.get("gold"))]
+    available = [row for row in gold_available if valid_axis_values(row.get("predicted"))]
     accuracy = {key: sum(row["predicted"][key] == row["gold"][key] for row in available) / count if count else 0.0 for key in AXES}
     exact = sum(all(row["predicted"][key] == row["gold"][key] for key in AXES) for row in available)
-    high_risk = [row for row in rows if row["gold"]["decision_impact"] == 3]
-    under = sum(row.get("predicted") is None or row["predicted"].get("decision_impact", -1) < 3 for row in high_risk)
+    high_risk = [row for row in gold_available if row["gold"]["decision_impact"] == 3]
+    under = sum(not valid_axis_values(row.get("predicted")) or row["predicted"]["decision_impact"] < 3 for row in high_risk)
     local = sum(row.get("decision_source") == "local_router" for row in rows)
-    groups = {difficulty: [row for row in rows if row["difficulty"] == difficulty] for difficulty in ("low", "medium", "high")}
+    groups = {difficulty: [row for row in rows if row.get("difficulty") == difficulty] for difficulty in ("low", "medium", "high")}
+    gold_axis_diversity = {key: len({row["gold"][key] for row in gold_available}) for key in AXES}
+    prediction_axis_diversity = {key: len({row["predicted"][key] for row in available}) for key in AXES}
     return {
         "sample_count": count,
         "prediction_count": len(available),
@@ -54,8 +65,10 @@ def prediction_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "high_risk_count": len(high_risk),
         "high_risk_underestimation_count": under,
         "high_risk_zero_error_upper_95": (1 - 0.05 ** (1 / len(high_risk))) if high_risk and under == 0 else None,
-        "gold_diversity": len({tuple(row["gold"][k] for k in AXES) for row in rows}),
+        "gold_diversity": len({tuple(row["gold"][k] for k in AXES) for row in gold_available}),
         "prediction_diversity": len({tuple(row["predicted"][k] for k in AXES) for row in available}),
+        "gold_axis_diversity": gold_axis_diversity,
+        "prediction_axis_diversity": prediction_axis_diversity,
         "model_distribution": dict(Counter(row.get("model_id") for row in rows if row.get("model_id"))),
         "local_count": local,
         "local_coverage": local / count if count else 0.0,
@@ -63,18 +76,75 @@ def prediction_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def assess_holdout(rows: list[dict[str, Any]], *, expected_ids: set[str], before: dict, after: dict, persisted_activation: bool) -> dict[str, Any]:
+def assess_holdout(
+    rows: list[dict[str, Any]],
+    *,
+    expected_cases: dict[str, dict[str, Any]],
+    before: dict,
+    after: dict,
+    persisted_activation: bool,
+) -> dict[str, Any]:
     """A complete PASS requires genuine runtime and independent quality evidence."""
+    def valid_axis_values(value: Any) -> bool:
+        return isinstance(value, dict) and set(value) == set(AXES) and all(
+            isinstance(value[key], int)
+            and not isinstance(value[key], bool)
+            and 0 <= value[key] <= 3
+            for key in AXES
+        )
+
+    def nonempty_string(value: Any) -> bool:
+        return isinstance(value, str) and bool(value.strip())
+
+    def valid_snapshot(value: Any) -> bool:
+        return (
+            isinstance(value, dict)
+            and isinstance(value.get("active_version"), int)
+            and not isinstance(value.get("active_version"), bool)
+            and value["active_version"] > 0
+            and nonempty_string(value.get("artifact_hash"))
+            and isinstance(value.get("judged_request_count"), int)
+            and not isinstance(value.get("judged_request_count"), bool)
+            and value["judged_request_count"] > 0
+            and nonempty_string(value.get("learner_id"))
+        )
+
     incomplete: list[str] = []
     failures: list[str] = []
-    ids = [row["case_id"] for row in rows]
-    if len(ids) != len(set(ids)) or set(ids) != expected_ids or not expected_ids:
+    expected_cases_valid = isinstance(expected_cases, dict) and bool(expected_cases) and all(
+        nonempty_string(case_id)
+        and isinstance(contract, dict)
+        and nonempty_string(contract.get("difficulty"))
+        and valid_axis_values(contract.get("gold"))
+        for case_id, contract in expected_cases.items()
+    )
+    ids = [row.get("case_id") for row in rows]
+    ids_valid = all(nonempty_string(case_id) for case_id in ids)
+    unique_ids = ids_valid and len(ids) == len(set(ids))
+    if not expected_cases_valid or not unique_ids or set(ids) != set(expected_cases):
         incomplete.append("missing_or_duplicate_cases")
+    if not expected_cases_valid or any(
+        not isinstance(expected_cases.get(row.get("case_id")), dict)
+        or row.get("difficulty") != expected_cases[row["case_id"]].get("difficulty")
+        or not valid_axis_values(row.get("gold"))
+        or row.get("gold") != expected_cases[row["case_id"]].get("gold")
+        for row in rows
+    ):
+        incomplete.append("case_contract_mismatch")
+    if not valid_snapshot(before) or not valid_snapshot(after):
+        incomplete.append("persisted_snapshot_invalid")
     if before != after:
         incomplete.append("state_changed_during_holdout")
     if not persisted_activation:
         incomplete.append("persisted_activation_unverified")
+    if not rows or any(
+        not nonempty_string(row.get("decision_source")) or not nonempty_string(row.get("model_id"))
+        for row in rows
+    ):
+        incomplete.append("routing_evidence_missing")
     metrics = prediction_metrics(rows)
+    if metrics["high_risk_count"] == 0:
+        incomplete.append("high_risk_cases_missing")
     if metrics["local_coverage"] < 0.70:
         failures.append("local_coverage")
     if any(value < 0.60 for value in metrics["group_local_coverage"].values()):
@@ -87,10 +157,19 @@ def assess_holdout(rows: list[dict[str, Any]], *, expected_ids: set[str], before
         failures.append("high_risk_underestimation")
     if metrics["gold_diversity"] > 1 and metrics["prediction_diversity"] <= 1:
         failures.append("prediction_collapse")
+    for axis in AXES:
+        if metrics["gold_axis_diversity"][axis] > 1 and metrics["prediction_axis_diversity"][axis] <= 1:
+            failures.append(f"{axis}_collapse")
     quality_keys = ("quality_score", "mid_score", "high_score")
     quality_complete = bool(rows) and all(
         isinstance(row.get("quality_pass"), bool)
-        and all(isinstance(row.get(key), (int, float)) and math.isfinite(row[key]) and 0 <= row[key] <= 100 for key in quality_keys)
+        and all(
+            isinstance(row.get(key), (int, float))
+            and not isinstance(row.get(key), bool)
+            and math.isfinite(row[key])
+            and 0 <= row[key] <= 100
+            for key in quality_keys
+        )
         for row in rows
     )
     if not quality_complete:
