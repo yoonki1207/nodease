@@ -46,6 +46,12 @@ for path in (ROOT, PARENT_OF_ROOT):
     if str(path) not in sys.path:
         sys.path.append(str(path))
 
+# Keep verification out of the legacy runner's fixed-ID/reset path.
+if __name__ == "__main__" and "--verify-convergence" in sys.argv:
+    from scripts.model_routing_verification import main as verification_main
+
+    raise SystemExit(verification_main([arg for arg in sys.argv[1:] if arg != "--verify-convergence"]))
+
 # 이 스크립트는 Gateway/worker 진입점 없이 직접 실행되므로, 저장된 credential을
 # 복호화할 수 있도록 애플리케이션과 동일한 .env를 먼저 읽는다.
 load_dotenv(ROOT / ".env", override=False)
