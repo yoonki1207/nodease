@@ -1,0 +1,231 @@
+{
+  "scope": "recomputed_classification_metrics_only",
+  "actual_runtime_coverage": "not_measured",
+  "production_revision": "9ad27d5abceb527fa32e6612ffe6b6917450cef5",
+  "experiments": [
+    {
+      "source": "offline-gold.json",
+      "sha256": "07bbba90284a085bc44857a83537d0e3225ae9099a217d6afcaa55ed7bde33d0",
+      "classifier_verdict": "FAIL",
+      "overall_verdict": "INCOMPLETE",
+      "budget": {
+        "charged_usd": "0",
+        "calls": {
+          "attempted": 0
+        }
+      },
+      "runs": [
+        {
+          "seed": 17,
+          "trained_count": 300,
+          "optimistic_readiness": "judge_first",
+          "candidate_confident_coverage": 0.0,
+          "collapsed_axes": [
+            "task_complexity",
+            "evidence_synthesis"
+          ],
+          "sample_count": 150,
+          "axis_accuracies": {
+            "task_complexity": 0.4,
+            "decision_impact": 0.4,
+            "evidence_synthesis": 0.43333333333333335
+          },
+          "exact_match_rate": 0.1,
+          "high_risk_count": 35,
+          "high_risk_underestimation_count": 35,
+          "gold_diversity": 9,
+          "prediction_diversity": 3,
+          "gold_axis_diversity": {
+            "task_complexity": 4,
+            "decision_impact": 4,
+            "evidence_synthesis": 4
+          },
+          "prediction_axis_diversity": {
+            "task_complexity": 1,
+            "decision_impact": 3,
+            "evidence_synthesis": 1
+          }
+        },
+        {
+          "seed": 42,
+          "trained_count": 300,
+          "optimistic_readiness": "judge_first",
+          "candidate_confident_coverage": 0.0,
+          "collapsed_axes": [
+            "task_complexity",
+            "evidence_synthesis"
+          ],
+          "sample_count": 150,
+          "axis_accuracies": {
+            "task_complexity": 0.4,
+            "decision_impact": 0.4,
+            "evidence_synthesis": 0.43333333333333335
+          },
+          "exact_match_rate": 0.1,
+          "high_risk_count": 35,
+          "high_risk_underestimation_count": 35,
+          "gold_diversity": 9,
+          "prediction_diversity": 3,
+          "gold_axis_diversity": {
+            "task_complexity": 4,
+            "decision_impact": 4,
+            "evidence_synthesis": 4
+          },
+          "prediction_axis_diversity": {
+            "task_complexity": 1,
+            "decision_impact": 3,
+            "evidence_synthesis": 1
+          }
+        },
+        {
+          "seed": 73,
+          "trained_count": 300,
+          "optimistic_readiness": "judge_first",
+          "candidate_confident_coverage": 0.0,
+          "collapsed_axes": [
+            "task_complexity"
+          ],
+          "sample_count": 150,
+          "axis_accuracies": {
+            "task_complexity": 0.4,
+            "decision_impact": 0.4,
+            "evidence_synthesis": 0.3
+          },
+          "exact_match_rate": 0.0,
+          "high_risk_count": 35,
+          "high_risk_underestimation_count": 35,
+          "gold_diversity": 9,
+          "prediction_diversity": 4,
+          "gold_axis_diversity": {
+            "task_complexity": 4,
+            "decision_impact": 4,
+            "evidence_synthesis": 4
+          },
+          "prediction_axis_diversity": {
+            "task_complexity": 1,
+            "decision_impact": 3,
+            "evidence_synthesis": 2
+          }
+        }
+      ]
+    },
+    {
+      "source": "live-judge.json",
+      "sha256": "95ca752a8f7c426bbecaf7af77468240c8bebffbc5d2c049fc30be25a616d237",
+      "classifier_verdict": "FAIL",
+      "overall_verdict": "INCOMPLETE",
+      "budget": {
+        "limit_usd": "30",
+        "charged_usd": "0.422541",
+        "available_usd": "29.577459",
+        "settled_usd": "0.422541",
+        "reserved_usd": "0",
+        "calls": {
+          "attempted": 300,
+          "succeeded": 300,
+          "failed": 0
+        },
+        "pending_reservations": 0,
+        "unknown_usage": 0,
+        "blocked": false,
+        "blocked_reason": null,
+        "cost_basis": "catalog_standard_text_token_estimate"
+      },
+      "runs": [
+        {
+          "seed": 17,
+          "trained_count": 300,
+          "optimistic_readiness": "judge_first",
+          "candidate_confident_coverage": 0.0,
+          "collapsed_axes": [
+            "task_complexity",
+            "evidence_synthesis"
+          ],
+          "sample_count": 150,
+          "axis_accuracies": {
+            "task_complexity": 0.3,
+            "decision_impact": 0.3,
+            "evidence_synthesis": 0.43333333333333335
+          },
+          "exact_match_rate": 0.0,
+          "high_risk_count": 35,
+          "high_risk_underestimation_count": 35,
+          "gold_diversity": 9,
+          "prediction_diversity": 3,
+          "gold_axis_diversity": {
+            "task_complexity": 4,
+            "decision_impact": 4,
+            "evidence_synthesis": 4
+          },
+          "prediction_axis_diversity": {
+            "task_complexity": 1,
+            "decision_impact": 3,
+            "evidence_synthesis": 1
+          }
+        },
+        {
+          "seed": 42,
+          "trained_count": 300,
+          "optimistic_readiness": "judge_first",
+          "candidate_confident_coverage": 0.0,
+          "collapsed_axes": [
+            "task_complexity",
+            "evidence_synthesis"
+          ],
+          "sample_count": 150,
+          "axis_accuracies": {
+            "task_complexity": 0.4,
+            "decision_impact": 0.4,
+            "evidence_synthesis": 0.43333333333333335
+          },
+          "exact_match_rate": 0.0,
+          "high_risk_count": 35,
+          "high_risk_underestimation_count": 35,
+          "gold_diversity": 9,
+          "prediction_diversity": 3,
+          "gold_axis_diversity": {
+            "task_complexity": 4,
+            "decision_impact": 4,
+            "evidence_synthesis": 4
+          },
+          "prediction_axis_diversity": {
+            "task_complexity": 1,
+            "decision_impact": 3,
+            "evidence_synthesis": 1
+          }
+        },
+        {
+          "seed": 73,
+          "trained_count": 300,
+          "optimistic_readiness": "judge_first",
+          "candidate_confident_coverage": 0.0,
+          "collapsed_axes": [
+            "task_complexity",
+            "evidence_synthesis"
+          ],
+          "sample_count": 150,
+          "axis_accuracies": {
+            "task_complexity": 0.3,
+            "decision_impact": 0.4,
+            "evidence_synthesis": 0.43333333333333335
+          },
+          "exact_match_rate": 0.0,
+          "high_risk_count": 35,
+          "high_risk_underestimation_count": 35,
+          "gold_diversity": 9,
+          "prediction_diversity": 3,
+          "gold_axis_diversity": {
+            "task_complexity": 4,
+            "decision_impact": 4,
+            "evidence_synthesis": 4
+          },
+          "prediction_axis_diversity": {
+            "task_complexity": 1,
+            "decision_impact": 3,
+            "evidence_synthesis": 1
+          }
+        }
+      ]
+    }
+  ]
+}

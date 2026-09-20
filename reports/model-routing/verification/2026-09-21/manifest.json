@@ -1,0 +1,78 @@
+{
+  "base_revision": "9ad27d5abceb527fa32e6612ffe6b6917450cef5",
+  "dataset_hash": "041d72a7afc90ffa9ee28a50671ea63826db0fdbcac28211da1bb421550c7257",
+  "files_sha256": {
+    "apps/workflow_engine/services/model_router.py": "fdc443fe11a03b239e2346a7be5845c4e22ec3cf06256524ddd00a0749d4c89a",
+    "apps/workflow_engine/services/model_routing_incremental_learning.py": "2576ee9177107bd21c71189473cf05e8c248a302ef8255035972458ab8426aef",
+    "apps/workflow_engine/services/model_routing_learning_batch.py": "5223ec614bdd6c81a432bd8972c515352a8005a5894f5586d5ffbc32e813dd59",
+    "apps/workflow_engine/services/model_routing_local_classifier.py": "05bd0fb196a80a7f62f813db7fa74bd333a60068a5fe7729b24bb43374d41fd6",
+    "apps/workflow_engine/services/model_routing_runtime_judge.py": "373b18c1a85588736ef89f36b512b6bde377e775d46ee17945d4570decd4ac29",
+    "apps/workflow_engine/services/model_routing_learner_store.py": "f3da47e1c3d23ba581e904ebc6d25fde104efc0fda605281ade45dc5743f1936",
+    "apps/shared/services/llm_model_pricing.py": "6be595058c8d5b8c7975611d41f665eb0f14df384bcecb5dc9b7a44fca338adb",
+    "scripts/model_routing_verification_cases.py": "f706a84932b8cbd405d7e22c4ca13be28cd839cc199b62ecd100923d692e7624"
+  },
+  "cost_cap_usd": "30",
+  "judge_model": "gpt-5.4-mini",
+  "official_price_source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+  "price_per_million_tokens": {
+    "input_usd": "0.75",
+    "output_usd": "4.50"
+  },
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "training_count": 300,
+  "holdout_count": 150,
+  "thresholds": {
+    "local_coverage": 0.7,
+    "group_local_coverage": 0.6,
+    "axis_accuracy": 0.85,
+    "exact_match": 0.75,
+    "high_impact_underestimations_max": 0,
+    "quality_pass_rate": 0.9,
+    "paired_quality_ci_lower_min": -5
+  },
+  "persisted_live_execution": {
+    "status": "NOT_RUN",
+    "reason": "configured local PostgreSQL unavailable; repository policy requires remote PostgreSQL integration; CI bridge tested separately"
+  },
+  "source_hash_collection": "Recorded after offline execution; corpus hash was locked by tests before execution.",
+  "total_live_provider_calls": 300,
+  "estimated_total_usd": "0.422541",
+  "remaining_authorized_task_budget_usd": "29.577459",
+  "unknown_usage_calls": 0,
+  "failed_provider_calls": 0,
+  "end_to_end_verdict": "INCOMPLETE",
+  "classifier_verdict": "FAIL",
+  "verification_implementation_commit": "2671695a89cf65464a8f5890f7b5036d481af68f",
+  "isolated_branch": "codex/verify-model-routing-convergence",
+  "local_verification": {
+    "passed": 69,
+    "skipped": 1,
+    "skipped_reason": "PostgreSQL test runs remotely"
+  },
+  "persisted_selection_contract": {
+    "candidate_models": [
+      "gpt-4o-mini",
+      "gpt-5.4-mini",
+      "gpt-5.6-sol"
+    ],
+    "expected_model_diversity": 2,
+    "oracle": "production_catalog_selector_with_gold_requirements",
+    "independent_selector_validation": false
+  },
+  "verifier_sources_sha256": {
+    "scripts/model_routing_verification_cases.py": "f706a84932b8cbd405d7e22c4ca13be28cd839cc199b62ecd100923d692e7624",
+    "scripts/model_routing_verification_provider.py": "2c814ffad46b9588a4d8ca273fdc14f748116a41a6b274d21ed9618774816911",
+    "scripts/model_routing_verification_runtime.py": "108efcd7ab04755afcde430098cf3c5ffa69e354b8d1b2ed0585dad412d3bd02",
+    "scripts/model_routing_verification.py": "9e4a608c814e945c20de5708d42625c05a13917f1480357aef84bca56d9e230b"
+  },
+  "remote_verification": {
+    "passed": 70,
+    "skipped": 0,
+    "url": "https://github.com/yoonki1207/nodease/actions/runs/35524570927",
+    "head_sha": "2671695a89cf65464a8f5890f7b5036d481af68f"
+  }
+}

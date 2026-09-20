@@ -1,0 +1,88 @@
+{
+  "scope": "recomputed_aggregate_from_archived_reports",
+  "not_reexecuted": true,
+  "runs": [
+    {
+      "source": "reports/model-routing/runs/judge-first/2026-07-20__norag-80-blind__judge-gpt-5.4-mini__out-768__attempt-04/result.json",
+      "sha256": "406410233e1e76f9100cf25df6cdcbd8d8285d8dccafbfb7f9f35a771e72fe4f",
+      "request_count": 70,
+      "local_count": 20,
+      "local_model_distribution": {
+        "gpt-4.1-mini": 20
+      },
+      "local_single_model": true,
+      "decision_source_distribution": {
+        "runtime_judge": 50,
+        "local_router": 20
+      },
+      "first_50_model_distribution": {
+        "gpt-4.1": 4,
+        "gpt-4.1-mini": 42,
+        "gpt-5-mini": 2,
+        "gpt-5.6-terra": 1,
+        "gpt-4o-mini": 1
+      },
+      "archived_summary": {
+        "run_count": 70,
+        "schema_pass_rate": 1.0,
+        "workflow_success_rate": 1.0,
+        "quality_pass_rate": 0.5571428571428572,
+        "quality_evaluation_failure_count": 0
+      }
+    },
+    {
+      "source": "reports/model-routing/runs/judge-first/2026-07-20__contract-isolation-80__judge-gpt-5.4-mini/result.json",
+      "sha256": "2e8276f148d7f27df63d240387ae9d1717738942b0df573a417e59b015f2bfb0",
+      "request_count": 80,
+      "local_count": 30,
+      "local_model_distribution": {
+        "gpt-5-mini": 30
+      },
+      "local_single_model": true,
+      "decision_source_distribution": {
+        "runtime_judge": 50,
+        "local_router": 30
+      },
+      "first_50_model_distribution": {
+        "gpt-4.1-mini": 15,
+        "gpt-4o-mini": 4,
+        "gpt-5-mini": 24,
+        "o3": 1,
+        "gpt-4.1": 3,
+        "gpt-5.6-terra": 3
+      },
+      "archived_summary": {
+        "run_count": 80,
+        "schema_pass_rate": 1.0,
+        "workflow_success_rate": 1.0,
+        "quality_pass_rate": 0.8375,
+        "quality_evaluation_failure_count": 0
+      }
+    },
+    {
+      "source": "reports/model-routing/runs/judge-first/2026-07-22__routing-learning-100__benchmark-20/learning/result.json",
+      "sha256": "aa65d1ac87e93ca881ffc47bb8e98af34bef032e934186afaeb56feffa11bf4c",
+      "request_count": 100,
+      "local_count": 0,
+      "local_model_distribution": {},
+      "local_single_model": false,
+      "decision_source_distribution": {
+        "runtime_judge": 100
+      },
+      "first_50_model_distribution": {
+        "gpt-4o-mini": 16,
+        "gpt-5-mini": 14,
+        "gpt-4.1": 17,
+        "gpt-4.1-mini": 1,
+        "gpt-5.4-mini": 2
+      },
+      "archived_summary": {
+        "run_count": 100,
+        "schema_pass_rate": 1.0,
+        "workflow_success_rate": 1.0,
+        "quality_pass_rate": null,
+        "quality_evaluation_failure_count": 0
+      }
+    }
+  ]
+}

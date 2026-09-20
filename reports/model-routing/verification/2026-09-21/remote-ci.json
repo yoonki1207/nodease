@@ -1,0 +1,436 @@
+{
+  "url": "https://github.com/yoonki1207/nodease/actions/runs/35524570927",
+  "head_sha": "2671695a89cf65464a8f5890f7b5036d481af68f",
+  "suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "70",
+      "time": "11.762"
+    }
+  ],
+  "tests": [
+    {
+      "name": "test_requirement_artifact_is_invariant_to_selected_model_distribution",
+      "classname": "tests.services.test_model_routing_verification_contract",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_local_first_gate_rejects_prediction_collapse_as_the_only_changed_field",
+      "classname": "tests.services.test_model_routing_verification_contract",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_workflow_supports_manual_and_reusable_execution",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_isolated_verification_branch_push_can_run_the_new_workflow",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_workflow_uses_disposable_postgres_gate_and_python_311",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_workflow_runs_only_the_registered_offline_verification_targets",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_workflow_uploads_junit_evidence_even_when_tests_fail",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_workflow_pins_every_external_action_to_a_commit_sha",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_dependency_install_does_not_pull_the_workflow_engine_torch_extra",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_published_version_is_the_runtime_artifact_while_candidate_keeps_learning",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_complete_frozen_local_run_passes",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_same_model_for_every_case_passes_when_preregistered_as_allowed",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_single_model_fails_when_preregistered_cases_require_other_models",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_missing_model_allowlist_cannot_produce_complete_verdict",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_model_allowlist_only_applies_when_requirement_prediction_is_correct",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_all_judge_run_cannot_pass_even_with_perfect_quality",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_missing_or_duplicate_evaluations_are_not_dropped_from_denominator",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_artifact_change_invalidates_holdout",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_high_risk_underestimation_fails_even_when_average_accuracy_passes",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_single_prediction_is_detected_without_requiring_uniform_model_shares",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_missing_persisted_activation_never_passes",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_persisted_snapshot_requires_backend_identity_fields[active_version]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_persisted_snapshot_requires_backend_identity_fields[artifact_hash]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_persisted_snapshot_requires_backend_identity_fields[judged_request_count]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_persisted_snapshot_requires_backend_identity_fields[learner_id]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_complete_evidence_requires_source_and_model_per_case[decision_source]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_complete_evidence_requires_source_and_model_per_case[model_id]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_unregistered_or_altered_case_evidence_is_incomplete",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_holdout_without_level_three_cases_is_incomplete",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_boolean_quality_scores_are_not_numeric_evidence[quality_score]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_boolean_quality_scores_are_not_numeric_evidence[mid_score]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_boolean_quality_scores_are_not_numeric_evidence[high_score]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_each_constant_prediction_axis_is_named_as_collapse[task_complexity]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_each_constant_prediction_axis_is_named_as_collapse[decision_impact]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_each_constant_prediction_axis_is_named_as_collapse[evidence_synthesis]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_paired_bootstrap_is_reproducible_and_checks_each_baseline",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_historical_collapse_is_a_failure_not_a_successful_learning_run[20]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_historical_collapse_is_a_failure_not_a_successful_learning_run[30]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_hash_ignores_mapping_order_but_detects_weights_change",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_persisted_cli_dry_run_never_needs_db_or_provider",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_persisted_cli_requires_explicit_subjects_before_provider_or_db",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_legacy_cli_verification_switch_dispatches_without_old_runner",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_verification_corpus_has_preregistered_split_and_difficulty_counts",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_scenario_families_are_group_disjoint_and_have_ten_distinct_variants",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_cases_are_unique_and_gold_requirements_are_complete_and_bounded",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_each_split_covers_all_task_types_and_keeps_explain_act_pairs_together",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_domains_vary_within_each_level_and_across_both_splits",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_dataset_hash_is_deterministic_and_preregistered",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_holdout_uses_different_problem_constructions_from_training",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_refuses_before_touching_runtime_without_isolated_db_flag",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_runtime_client_facade_wraps_and_restores_every_selection",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_readiness_failure_is_fail_closed_and_skips_quality",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_seed_readiness_failure_does_not_enter_holdout_or_quality",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_seed_assessment_receives_preregistered_holdout_cases",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_gold_model_contract_uses_fixed_catalog_matrix_and_has_diversity",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_gold_model_contract_fails_closed_for_unknown_catalog_candidate",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_fixed_quality_baselines_and_candidates_are_preregistered[models0]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_fixed_quality_baselines_and_candidates_are_preregistered[models1]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_fixed_quality_baselines_and_candidates_are_preregistered[models2]",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_budget_rejects_an_attempt_before_the_provider_call",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_budget_limit_cannot_exceed_the_authorized_thirty_dollars",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_directly_wrapped_client_has_sdk_retries_disabled",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_large_schema_is_included_in_the_pre_call_input_reservation",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_valid_usage_settles_the_reservation_from_actual_token_counts",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_missing_usage_keeps_the_conservative_charge_and_blocks_further_calls",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_timeout_is_redacted_charged_as_unknown_and_blocks_further_calls",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_provider_error_with_usage_is_settled_without_poisoning_the_ledger",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_attempts_sharing_a_ledger_are_serialized",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_env_client_uses_project_factory_without_exposing_the_key",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "name": "test_env_client_missing_key_has_a_safe_configuration_error",
+      "classname": "",
+      "skipped": false,
+      "failed": false
+    }
+  ]
+}
