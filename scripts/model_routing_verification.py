@@ -96,6 +96,13 @@ def assess_holdout(
     def nonempty_string(value: Any) -> bool:
         return isinstance(value, str) and bool(value.strip())
 
+    def valid_allowed_model_ids(value: Any) -> bool:
+        return (
+            isinstance(value, (set, frozenset))
+            and bool(value)
+            and all(nonempty_string(model_id) for model_id in value)
+        )
+
     def valid_snapshot(value: Any) -> bool:
         return (
             isinstance(value, dict)
@@ -142,6 +149,18 @@ def assess_holdout(
         for row in rows
     ):
         incomplete.append("routing_evidence_missing")
+    model_contract_complete = expected_cases_valid and all(
+        valid_allowed_model_ids(contract.get("allowed_model_ids"))
+        for contract in expected_cases.values()
+    )
+    if not model_contract_complete:
+        incomplete.append("model_selection_contract_missing")
+    elif any(
+        row.get("predicted") == row.get("gold")
+        and row.get("model_id") not in expected_cases.get(row.get("case_id"), {}).get("allowed_model_ids", set())
+        for row in rows
+    ):
+        failures.append("model_selection_contract")
     metrics = prediction_metrics(rows)
     if metrics["high_risk_count"] == 0:
         incomplete.append("high_risk_cases_missing")

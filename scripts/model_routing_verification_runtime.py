@@ -22,8 +22,10 @@ from scripts.model_routing_verification_provider import BudgetedClient
 
 ISOLATION_ENV = "NODEASE_ROUTING_VERIFICATION_ISOLATED_DB"
 NODE_ID = "llm-triage"
+LOW_MODEL = "gpt-4o-mini"
 MID_MODEL = "gpt-5.4-mini"
 HIGH_MODEL = "gpt-5.6-sol"
+FIXED_CANDIDATE_MODELS = (LOW_MODEL, MID_MODEL, HIGH_MODEL)
 
 
 class IsolationRequiredError(RuntimeError):
@@ -174,6 +176,74 @@ def _graph(*, model_id: str, automatic: bool, fallback: str | None = None) -> di
         }
     )
     return graph
+
+
+def _gold_model_contract(
+    cases,
+    *,
+    candidate_models: Iterable[str],
+    judge_model: str,
+) -> tuple[dict[str, frozenset[str]], int]:
+    """Map gold requirements to the catalog model the runtime should select.
+
+    Gold requirements make this check independent of the learned classifier.
+    It deliberately reuses the production catalog selector, so it verifies the
+    classifier-to-model contract but is not an independent test of that selector.
+    """
+
+    from apps.shared.services.llm_model_pricing import get_model_pricing
+    from apps.shared.services.model_routing_global_profile_catalog import (
+        catalog_metadata_for_model_id,
+    )
+    from apps.workflow_engine.services.model_router import ModelRouter
+    from apps.workflow_engine.services.model_routing_bootstrap_score import (
+        model_bootstrap_score,
+    )
+
+    candidates = tuple(dict.fromkeys(str(model).strip() for model in candidate_models))
+    if not candidates or any(
+        not catalog_metadata_for_model_id(model)
+        or model_bootstrap_score(model) is None
+        or get_model_pricing(model) is None
+        for model in candidates
+    ):
+        raise RuntimeVerificationError("model_selection_contract_unverifiable")
+
+    graph = _graph(model_id=judge_model, automatic=True, fallback=HIGH_MODEL)
+    try:
+        node_data = next(
+            node["data"] for node in graph["nodes"] if node["id"] == NODE_ID
+        )
+    except (KeyError, StopIteration, TypeError):
+        raise RuntimeVerificationError("model_selection_contract_unverifiable") from None
+
+    allowed: dict[str, frozenset[str]] = {}
+    selected_models: set[str] = set()
+    for case in cases:
+        inputs = {
+            "webhook-ticket": {
+                "request": case.request,
+                "context": case.context,
+                "customerTier": "synthetic",
+            }
+        }
+        structural_facts = ModelRouter.runtime_requirement_facts(
+            inputs=inputs,
+            node_data=node_data,
+        )
+        selected = ModelRouter.select_candidate_for_requirements(
+            candidate_model_ids=candidates,
+            requirements=case.requirements,
+            default_model_id=judge_model,
+            structural_facts=structural_facts,
+        )
+        if selected not in candidates:
+            raise RuntimeVerificationError("model_selection_contract_unverifiable")
+        allowed[case.case_id] = frozenset({selected})
+        selected_models.add(selected)
+    if not allowed or not selected_models:
+        raise RuntimeVerificationError("model_selection_contract_unverifiable")
+    return allowed, len(selected_models)
 
 
 def _create_resources(ids, *, user_id, organization_id, candidates, judge_model):
@@ -433,6 +503,11 @@ def _execute_seed(*, cases, seed, ledger, user_id, organization_id, judge_model,
 
     training = [case for case in cases if case.split == "train"]
     holdout = [case for case in cases if case.split == "holdout"]
+    allowed_models_by_case, expected_model_diversity = _gold_model_contract(
+        holdout,
+        candidate_models=candidate_models,
+        judge_model=judge_model,
+    )
     ids = _ResourceIds.fresh()
     learner_id = _create_resources(
         ids, user_id=user_id, organization_id=organization_id,
@@ -458,6 +533,7 @@ def _execute_seed(*, cases, seed, ledger, user_id, organization_id, judge_model,
     if not ready:
         return {
             "seed": seed, "namespace": str(ids.namespace),
+            "expected_model_diversity": expected_model_diversity,
             "readiness": {"ready": False, "reason": "local_first_not_published", "state": before},
             "rows": [], "verdict": "FAIL", "failures": ["learner_not_ready"], "incomplete": [],
         }
@@ -501,6 +577,7 @@ def _execute_seed(*, cases, seed, ledger, user_id, organization_id, judge_model,
             case.case_id: {
                 "difficulty": case.difficulty,
                 "gold": dict(case.requirements),
+                "allowed_model_ids": allowed_models_by_case[case.case_id],
             }
             for case in holdout
         },
@@ -514,6 +591,7 @@ def _execute_seed(*, cases, seed, ledger, user_id, organization_id, judge_model,
     )
     return {
         "seed": seed, "namespace": str(ids.namespace),
+        "expected_model_diversity": expected_model_diversity,
         "readiness": {"ready": True, "state": before}, "frozen_after": after,
         "rows": rows, **assessment,
     }
@@ -535,8 +613,11 @@ def run_persisted_verification(
     if len(train) != 300 or len(holdout) != 150 or len({c.case_id for c in cases}) != 450:
         raise ValueError("verification_cases_invalid")
     models = [str(item).strip() for item in candidate_models]
-    required = {MID_MODEL, HIGH_MODEL, judge_model}
-    if not models or len(models) != len(set(models)) or not required.issubset(models):
+    if (
+        len(models) != len(set(models))
+        or set(models) != set(FIXED_CANDIDATE_MODELS)
+        or judge_model != MID_MODEL
+    ):
         raise ValueError("candidate_models_invalid")
     seeds = tuple(seeds)
     if not seeds or len(seeds) != len(set(seeds)):

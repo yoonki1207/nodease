@@ -126,7 +126,7 @@ def test_readiness_failure_is_fail_closed_and_skips_quality(monkeypatch, tmp_pat
         ledger=SimpleNamespace(summary=lambda: {"calls": {"attempted": 0}}),
         user_id=uuid4(),
         organization_id=uuid4(),
-        candidate_models=["gpt-5.4-mini", "gpt-5.6-sol"],
+        candidate_models=["gpt-4o-mini", "gpt-5.4-mini", "gpt-5.6-sol"],
         seeds=(17,),
     )
 
@@ -143,6 +143,14 @@ def test_seed_readiness_failure_does_not_enter_holdout_or_quality(monkeypatch):
     training_ids = {case.case_id for case in cases if case.split == "train"}
     executed = []
     monkeypatch.setattr(runtime, "_create_resources", lambda *args, **kwargs: uuid4())
+    monkeypatch.setattr(
+        runtime,
+        "_gold_model_contract",
+        lambda holdout, **_kwargs: (
+            {case.case_id: frozenset({"gpt-5.4-mini"}) for case in holdout},
+            1,
+        ),
+    )
     monkeypatch.setattr(runtime, "_graph", lambda **kwargs: {})
 
     def fake_run(case, **kwargs):
@@ -179,7 +187,7 @@ def test_seed_readiness_failure_does_not_enter_holdout_or_quality(monkeypatch):
         organization_id=uuid4(),
         judge_model="gpt-5.4-mini",
         quality_model="gpt-5.4",
-        candidate_models=["gpt-5.4-mini", "gpt-5.6-sol"],
+        candidate_models=["gpt-4o-mini", "gpt-5.4-mini", "gpt-5.6-sol"],
         quality_callback=lambda *args, **kwargs: pytest.fail("quality must be skipped"),
     )
 
@@ -193,8 +201,19 @@ def test_seed_assessment_receives_preregistered_holdout_cases(monkeypatch):
     import scripts.model_routing_verification_runtime as runtime
 
     cases = _cases()
+    holdout = [case for case in cases if case.split == "holdout"]
+    expected_allowed, expected_diversity = runtime._gold_model_contract(
+        holdout,
+        candidate_models=["gpt-4o-mini", "gpt-5.4-mini", "gpt-5.6-sol"],
+        judge_model="gpt-5.4-mini",
+    )
     learner_id = uuid4()
     monkeypatch.setattr(runtime, "_create_resources", lambda *args, **kwargs: learner_id)
+    monkeypatch.setattr(
+        runtime,
+        "_gold_model_contract",
+        lambda _holdout, **_kwargs: (expected_allowed, expected_diversity),
+    )
     monkeypatch.setattr(runtime, "_graph", lambda **kwargs: {})
     monkeypatch.setattr(runtime, "_record_training_run", lambda _run_id: None)
     monkeypatch.setattr(runtime, "_train_all_pending", lambda _learner_id: None)
@@ -242,7 +261,7 @@ def test_seed_assessment_receives_preregistered_holdout_cases(monkeypatch):
         organization_id=uuid4(),
         judge_model="gpt-5.4-mini",
         quality_model="gpt-5.4",
-        candidate_models=["gpt-5.4-mini", "gpt-5.6-sol"],
+        candidate_models=["gpt-4o-mini", "gpt-5.4-mini", "gpt-5.6-sol"],
         quality_callback=lambda *args, **kwargs: {
             arm: {"score": 95.0, "pass": True}
             for arm in ("automatic", "mid", "high")
@@ -253,6 +272,7 @@ def test_seed_assessment_receives_preregistered_holdout_cases(monkeypatch):
         case.case_id: {
             "difficulty": case.difficulty,
             "gold": dict(case.requirements),
+            "allowed_model_ids": expected_allowed[case.case_id],
         }
         for case in cases
         if case.split == "holdout"
@@ -260,6 +280,39 @@ def test_seed_assessment_receives_preregistered_holdout_cases(monkeypatch):
     assert result["verdict"] == "PASS"
     assert captured["expected_cases"] == expected
     assert "expected_ids" not in captured
+
+
+def test_gold_model_contract_uses_fixed_catalog_matrix_and_has_diversity():
+    import scripts.model_routing_verification_runtime as runtime
+
+    holdout = [case for case in _cases() if case.split == "holdout"]
+    allowed, diversity = runtime._gold_model_contract(
+        holdout,
+        candidate_models=["gpt-4o-mini", "gpt-5.4-mini", "gpt-5.6-sol"],
+        judge_model="gpt-5.4-mini",
+    )
+
+    assert set(allowed) == {case.case_id for case in holdout}
+    assert all(isinstance(models, frozenset) and len(models) == 1 for models in allowed.values())
+    assert {next(iter(models)) for models in allowed.values()} == {
+        "gpt-5.4-mini",
+        "gpt-5.6-sol",
+    }
+    assert diversity == 2
+
+
+def test_gold_model_contract_fails_closed_for_unknown_catalog_candidate():
+    import scripts.model_routing_verification_runtime as runtime
+
+    with pytest.raises(
+        runtime.RuntimeVerificationError,
+        match="model_selection_contract_unverifiable",
+    ):
+        runtime._gold_model_contract(
+            [_cases()[-1]],
+            candidate_models=["synthetic-unknown-model"],
+            judge_model="synthetic-unknown-model",
+        )
 
 
 @pytest.mark.parametrize(

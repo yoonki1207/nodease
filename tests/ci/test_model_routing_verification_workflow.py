@@ -61,6 +61,8 @@ def test_isolated_verification_branch_push_can_run_the_new_workflow():
         "scripts/model_routing_verification.py",
         "scripts/model_routing_verification_cases.py",
         "scripts/model_routing_verification_provider.py",
+        "scripts/model_routing_verification_runtime.py",
+        "scripts/experiment_judge_first_economics_80.py",
         "tests/ci/test_model_routing_verification_workflow.py",
         "tests/db/test_model_routing_activation_verification.py",
         "tests/experiments/test_model_routing_verification.py",

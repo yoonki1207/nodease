@@ -34,6 +34,7 @@ def registered_cases(rows=None):
         row["case_id"]: {
             "difficulty": row["difficulty"],
             "gold": deepcopy(row["gold"]),
+            "allowed_model_ids": {row["model_id"]},
         }
         for row in rows
     }
@@ -63,6 +64,42 @@ def assess(rows, **kwargs):
 
 def test_complete_frozen_local_run_passes():
     assert assess(healthy_rows())["verdict"] == "PASS"
+
+
+def test_same_model_for_every_case_passes_when_preregistered_as_allowed():
+    rows = healthy_rows()
+    expected_cases = registered_cases()
+    for row in rows:
+        row["model_id"] = "shared-model"
+    for contract in expected_cases.values():
+        contract["allowed_model_ids"] = {"shared-model"}
+    assert assess(rows, expected_cases=expected_cases)["verdict"] == "PASS"
+
+
+def test_single_model_fails_when_preregistered_cases_require_other_models():
+    rows = healthy_rows()
+    for row in rows:
+        row["model_id"] = "weak-model"
+    result = assess(rows)
+    assert result["verdict"] == "FAIL"
+    assert "model_selection_contract" in result["failures"]
+
+
+def test_missing_model_allowlist_cannot_produce_complete_verdict():
+    expected_cases = registered_cases()
+    expected_cases["case-0"].pop("allowed_model_ids")
+    result = assess(healthy_rows(), expected_cases=expected_cases)
+    assert result["verdict"] == "INCOMPLETE"
+    assert "model_selection_contract_missing" in result["incomplete"]
+
+
+def test_model_allowlist_only_applies_when_requirement_prediction_is_correct():
+    rows = healthy_rows()
+    rows[0]["predicted"]["task_complexity"] = 1
+    rows[0]["model_id"] = "outside-model"
+    result = assess(rows)
+    assert result["verdict"] == "PASS"
+    assert "model_selection_contract" not in result["failures"]
 
 
 def test_all_judge_run_cannot_pass_even_with_perfect_quality():

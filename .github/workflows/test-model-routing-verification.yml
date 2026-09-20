@@ -9,9 +9,11 @@ on:
     paths:
       - ".github/workflows/test-model-routing-verification.yml"
       - "apps/workflow_engine/tests/services/test_model_routing_verification_contract.py"
+      - "scripts/experiment_judge_first_economics_80.py"
       - "scripts/model_routing_verification.py"
       - "scripts/model_routing_verification_cases.py"
       - "scripts/model_routing_verification_provider.py"
+      - "scripts/model_routing_verification_runtime.py"
       - "tests/db/test_model_routing_activation_verification.py"
       - "tests/ci/test_model_routing_verification_workflow.py"
       - "tests/experiments/test_model_routing_verification.py"
