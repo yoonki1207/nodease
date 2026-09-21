@@ -1,0 +1,11 @@
+apiVersion: 1
+providers:
+  - name: nodease-local
+    orgId: 1
+    folder: Nodease
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/nodease-dashboards

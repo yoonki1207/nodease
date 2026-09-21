@@ -1,0 +1,37 @@
+services:
+  collector:
+    # Reuse the local Gateway Python runtime; no app startup or migrations run.
+    image: docker-gateway:latest
+    container_name: nodease-monitoring-collector
+    entrypoint: ["python", "-u", "/opt/nodease-monitoring/collector.py"]
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    restart: unless-stopped
+    volumes:
+      - ./collector.py:/opt/nodease-monitoring/collector.py:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LOKI_URL: http://loki:3100
+      PYTHONDONTWRITEBYTECODE: "1"
+    networks:
+      - monitoring
+      - nodease
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9108/metrics', timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+networks:
+  monitoring:
+    external: true
+    name: nodease-monitoring
+  nodease:
+    external: true
+    name: docker_moduly-network
