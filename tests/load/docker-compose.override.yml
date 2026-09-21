@@ -1,0 +1,26 @@
+services:
+  postgres:
+    ports: !override []
+
+  redis:
+    ports: !override []
+
+  sandbox:
+    ports: !override []
+
+  workflow_engine:
+    build:
+      args:
+        INSTALL_RAG_RERANKER: "false"
+        PREFETCH_MODEL_ROUTING_CLASSIFIER: "false"
+
+  nginx:
+    ports: !override
+      - "127.0.0.1:18080:80"
+    networks:
+      - moduly-network
+      - load-ingress
+
+networks:
+  load-ingress:
+    driver: bridge

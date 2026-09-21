@@ -15,7 +15,7 @@ except ImportError as e:
     sys.exit(1)
 
 # 기본 설정값
-DEFAULT_HOST = "https://moduly-ai.cloud/"
+DEFAULT_HOST = "http://127.0.0.1:18080"
 DEFAULT_USERS = 50
 DEFAULT_SPAWN_RATE = 5
 DEFAULT_RUN_TIME = "40s"

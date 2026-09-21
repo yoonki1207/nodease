@@ -18,7 +18,9 @@ COPY apps/shared /build/apps/shared
 COPY apps/log_system /build/apps/log_system
 
 # pyproject.toml 기반으로 설치
-RUN pip install --no-cache-dir --prefix=/install \
+RUN PIP_DEFAULT_TIMEOUT=120 \
+    PIP_RETRIES=10 \
+    pip install --no-cache-dir --prefix=/install \
     /build/apps/shared \
     /build/apps/log_system
 

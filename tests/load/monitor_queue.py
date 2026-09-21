@@ -1,185 +1,117 @@
 #!/usr/bin/env python3
-"""
-Redis Queue 실시간 모니터링 스크립트
-- Redis Queue 길이 변동 실시간 확인
-- 결과 파일(redis_task_count.md) 자동 저장
-- 에러 상세 출력 모드 추가
-"""
+"""Record the local nodease-loadtest Redis workflow queue length."""
 
-import os
+from __future__ import annotations
+
+import argparse
 import subprocess
-import sys
 import time
-from datetime import datetime
-
-# 설정
-OUTPUT_FILE = "redis_task_count_user100.md"
-REDIS_PASSWORD = "moduly-redis-pass-2026"
-INTERVAL = 2
+from datetime import datetime, timezone
+from pathlib import Path
 
 
-def get_redis_pod_name():
-    """Redis Master Pod 이름을 동적으로 찾습니다."""
-    print("🔎 Searching for Redis Pod...")
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+LOAD_DIR = Path(__file__).resolve().parent
+PROJECT_NAME = "nodease-loadtest"
+ENV_FILE = LOAD_DIR / ".env.load.local"
+COMPOSE_FILE = REPOSITORY_ROOT / "docker" / "docker-compose.yml"
+COMPOSE_OVERRIDE_FILE = LOAD_DIR / "docker-compose.override.yml"
 
-    # 1. StatefulSet 이름 (가장 유력)
-    common_names = ["moduly-redis-master-0", "redis-master-0"]
-    for name in common_names:
-        cmd = ["kubectl", "get", "pod", "-n", "default", name, "--no-headers"]
-        try:
-            res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
-            if res.returncode == 0:
-                return name
-        except Exception:
-            pass
 
-    # 2. 'redis'와 'master'가 포함된 Pod 검색
-    cmd = [
-        "kubectl",
-        "get",
-        "pods",
-        "-n",
+def _compose_prefix() -> tuple[str, ...]:
+    return (
+        "docker",
+        "--context",
         "default",
-        "--no-headers",
-        "-o",
-        "custom-columns=:metadata.name",
-    ]
+        "compose",
+        "--env-file",
+        str(ENV_FILE),
+        "--project-name",
+        PROJECT_NAME,
+        "--project-directory",
+        str(COMPOSE_FILE.parent),
+        "--file",
+        str(COMPOSE_FILE),
+        "--file",
+        str(COMPOSE_OVERRIDE_FILE),
+    )
+
+
+def queue_length() -> int | None:
+    completed = subprocess.run(
+        _compose_prefix()
+        + ("exec", "--no-tty", "redis", "redis-cli", "LLEN", "workflow"),
+        cwd=REPOSITORY_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=10,
+    )
+    if completed.returncode != 0:
+        return None
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
-        for line in result.stdout.splitlines():
-            name = line.strip()
-            # master가 있거나, redis가 있는데 exporter나 worker가 아닌 것
-            if "master" in name and "redis" in name:
-                return name
-            if "redis" in name and "exporter" not in name and "worker" not in name:
-                # master라는 단어가 없을 수도 있으니 후보로 둠
-                return name
-    except Exception as e:
-        print(f"❌ Error searching pods: {e}")
-
-    return None
+        return int(completed.stdout.strip().splitlines()[-1])
+    except (IndexError, ValueError):
+        return None
 
 
-def get_queue_length(pod_name, queue_name):
-    """Redis CLI로 queue 길이를 조회합니다."""
-    if not pod_name:
-        return -1
-
-    cmd = [
-        "kubectl",
-        "exec",
-        "-n",
-        "default",
-        pod_name,
-        "--",
-        "redis-cli",
-        "-a",
-        REDIS_PASSWORD,
-        "--no-auth-warning",
-        "LLEN",
-        queue_name,
-    ]
-
-    try:
-        result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=5, encoding="utf-8"
-        )
-
-        if result.returncode == 0:
-            lines = result.stdout.strip().split("\n")
-            last_line = lines[-1].strip()
-
-            if "(integer)" in last_line:
-                return int(last_line.split()[-1])
-            try:
-                return int(last_line)
-            except ValueError:
-                print(f"\n⚠️ Parsing error: {last_line}")
-                return -1
-        else:
-            # 에러 메시지 빨간색으로 출력
-            err_msg = result.stderr.strip()
-            print(f"\n❌ Exec Error ({queue_name}): {err_msg}")
-            return -1
-
-    except Exception as e:
-        print(f"\n❌ System Error: {e}")
-        return -1
+def workflow_worker_count() -> int | None:
+    completed = subprocess.run(
+        _compose_prefix() + ("ps", "--status", "running", "--services"),
+        cwd=REPOSITORY_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=10,
+    )
+    if completed.returncode != 0:
+        return None
+    return sum(
+        1
+        for service in completed.stdout.splitlines()
+        if service.strip() == "workflow_engine"
+    )
 
 
-def get_worker_count():
-    """현재 실행 중인 Worker Pod 개수"""
-    cmd = [
-        "kubectl",
-        "get",
-        "pods",
-        "-n",
-        "default",
-        "-l",
-        "app=worker",
-        "--no-headers",
-    ]
-    try:
-        result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=5, encoding="utf-8"
-        )
-        if result.returncode == 0:
-            return len(result.stdout.strip().splitlines())
-    except Exception:
-        pass
-    return -1
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Monitor the isolated local workflow queue"
+    )
+    parser.add_argument("--interval", type=float, default=2.0)
+    parser.add_argument("--output", type=Path)
+    return parser
 
 
-def init_log_file():
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write("# Redis Task Queue Log\n\n")
-        f.write(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-        f.write("| Time | Workflow | Log | Total | Workers |\n")
-        f.write("|:-:|:-:|:-:|:-:|:-:|\n")
-    print(f"📝 Logging to {os.path.abspath(OUTPUT_FILE)}")
-
-
-def main():
-    print("=" * 60)
-    print("🚀 Redis Queue Monitor Started")
-    print("=" * 60)
-
-    # 1. Redis Pod 찾기
-    print("� Finding Redis Master Pod...")
-    redis_pod = get_redis_pod_name()
-    if not redis_pod:
-        print("❌ FAILED: Could not find Redis Master Pod.")
-        return
-    print(f"✅ Target Pod: {redis_pod}")
-    print("-" * 60)
-
-    # 2. 파일 초기화
-    init_log_file()
-
+def main() -> int:
+    args = _parser().parse_args()
+    if args.interval <= 0:
+        raise SystemExit("--interval must be positive")
+    output = args.output or (
+        LOAD_DIR
+        / "reports"
+        / f"queue_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.csv"
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("timestamp,workflow_queue,workflow_workers\n", encoding="utf-8")
+    print(f"recording queue metrics to {output}")
     try:
         while True:
-            now = datetime.now().strftime("%H:%M:%S")
-
-            # 데이터 수집 (Workflow Queue만)
-            wf_len = get_queue_length(redis_pod, "workflow")
-            workers = get_worker_count()
-
-            # 포맷팅
-            wf_str = "ERR" if wf_len == -1 else str(wf_len)
-
-            # 콘솔 출력
-            print(f"[{now}] 📊 Workflow Queue: {wf_str:>5} | 👷 Workers: {workers}")
-
-            # 파일 저장
-            with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
-                f.write(f"| {now} | {wf_str} | - | {wf_str} | {workers} |\n")
-
-            sys.stdout.flush()
-            time.sleep(INTERVAL)
-
+            now = datetime.now(timezone.utc).isoformat()
+            queue = queue_length()
+            workers = workflow_worker_count()
+            with output.open("a", encoding="utf-8") as stream:
+                stream.write(
+                    f"{now},{'' if queue is None else queue},"
+                    f"{'' if workers is None else workers}\n"
+                )
+            print(
+                f"workflow_queue={queue if queue is not None else 'unavailable'} "
+                f"workflow_workers={workers if workers is not None else 'unavailable'}"
+            )
+            time.sleep(args.interval)
     except KeyboardInterrupt:
-        print("\n🛑 Stopped.")
+        return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

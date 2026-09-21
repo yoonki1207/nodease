@@ -4,7 +4,11 @@ WORKDIR /app
 
 # 패키지 설치
 COPY apps/client/package*.json ./
-RUN npm ci
+RUN NPM_CONFIG_FETCH_RETRIES=5 \
+    NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=20000 \
+    NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT=120000 \
+    NPM_CONFIG_FETCH_TIMEOUT=120000 \
+    npm ci
 
 # --- Stage 2: Builder ---
 FROM node:20-alpine AS builder

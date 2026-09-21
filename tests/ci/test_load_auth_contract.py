@@ -7,7 +7,10 @@ import pytest
 
 
 LOAD_SCRIPT_DIR = Path(__file__).resolve().parents[1] / "load"
-LOAD_SCRIPTS = tuple(LOAD_SCRIPT_DIR / f"load{index}.py" for index in range(1, 4))
+LOAD_SCRIPTS = (
+    *(LOAD_SCRIPT_DIR / f"load{index}.py" for index in range(1, 4)),
+    LOAD_SCRIPT_DIR / "smoke_test.py",
+)
 ENV_EXAMPLE = Path(__file__).resolve().parents[2] / "dev" / ".env.example"
 
 
@@ -45,3 +48,38 @@ def test_load_environment_guidance_uses_bearer_contract() -> None:
 
     assert guidance.find("X-Auth-Secret") == -1
     assert guidance.find("Authorization: Bearer") >= 0
+
+
+def test_smoke_uses_the_private_runtime_manifest_instead_of_the_root_env() -> None:
+    source = (LOAD_SCRIPT_DIR / "smoke_test.py").read_text(encoding="utf-8")
+
+    assert "load_runtime_manifest" in source
+    assert "validate_target_host" in source
+    assert "events.test_start" in source
+    assert "self.client.trust_env = False" in source
+    assert "timeout=REQUEST_TIMEOUT_SECONDS" in source
+    assert "allow_redirects=False" in source
+    assert "LocalRunner" in source
+    assert "raise StopTest" in source
+    assert "load_dotenv" not in source
+    assert 'ROOT_DIR / ".env"' not in source
+
+
+@pytest.mark.parametrize(
+    "script_path",
+    tuple(LOAD_SCRIPT_DIR / f"load{index}.py" for index in range(1, 4)),
+    ids=lambda path: path.name,
+)
+def test_legacy_load_scripts_never_log_response_bodies(script_path: Path) -> None:
+    source = script_path.read_text(encoding="utf-8")
+
+    assert "response.text" not in source
+    assert "Workflow failed: {data}" not in source
+
+
+def test_queue_monitor_has_no_embedded_redis_credential_or_kubernetes_target() -> None:
+    source = (LOAD_SCRIPT_DIR / "monitor_queue.py").read_text(encoding="utf-8")
+
+    assert "REDIS_PASSWORD" not in source
+    assert '"kubectl"' not in source
+    assert "nodease-loadtest" in source

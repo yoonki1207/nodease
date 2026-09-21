@@ -53,7 +53,9 @@ RUN nsjail --version || true
 WORKDIR /app
 
 # Python 의존성 설치 (직접 설치)
-RUN pip install --no-cache-dir \
+RUN PIP_DEFAULT_TIMEOUT=120 \
+    PIP_RETRIES=10 \
+    pip install --no-cache-dir \
     "fastapi>=0.115.0" \
     "uvicorn[standard]>=0.30.0" \
     "pydantic>=2.0.0" \

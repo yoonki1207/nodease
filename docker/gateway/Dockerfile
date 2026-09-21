@@ -20,7 +20,9 @@ COPY apps/workflow_engine /build/apps/workflow_engine
 COPY docker/model-routing-cpu-constraints.txt /build/model-routing-cpu-constraints.txt
 
 # pyproject.toml 기반으로 설치
-RUN pip install --no-cache-dir --prefix=/install \
+RUN PIP_DEFAULT_TIMEOUT=120 \
+    PIP_RETRIES=10 \
+    pip install --no-cache-dir --prefix=/install \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     --constraint /build/model-routing-cpu-constraints.txt \
     /build/apps/shared \
@@ -66,6 +68,7 @@ COPY apps/gateway /app/apps/gateway
 COPY apps/memory /app/apps/memory
 COPY apps/workflow_engine /app/apps/workflow_engine
 COPY scripts/seed_demo.py /app/scripts/seed_demo.py
+COPY scripts/seed_load_test.py /app/scripts/seed_load_test.py
 COPY scripts/check_schedule_dispatch_rollback.py /app/scripts/check_schedule_dispatch_rollback.py
 COPY scripts/rotate_llm_credentials.py /app/scripts/rotate_llm_credentials.py
 COPY scripts/reconcile_provider_usage.py /app/scripts/reconcile_provider_usage.py

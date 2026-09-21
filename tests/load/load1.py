@@ -62,7 +62,7 @@ class WorkflowUser(HttpUser):
         payload = {
             "inputs": {
                 "score": random.randint(1, 100),
-                "pdf": "https://moduly-dev-file-upload.s3.amazonaws.com/uploads/1e9d5de3-ed0f-4d1c-8aee-53e4afd78fd8/d9aeb862-119e-4c22-9317-36555098eddc_welcome.pdf",
+                "pdf": "",
             }
         }
 
@@ -78,9 +78,9 @@ class WorkflowUser(HttpUser):
                     if data.get("status") == "success":
                         response.success()
                     else:
-                        response.failure(f"Workflow failed: {data}")
-                except json.JSONDecodeError as e:
-                    response.failure(f"JSON parse error: {e}")
+                        response.failure("Workflow returned a non-success status")
+                except json.JSONDecodeError:
+                    response.failure("Invalid JSON response")
             elif response.status_code == 401:
                 response.failure("Authentication failed - check LOAD_TEST_AUTH_TOKEN_1")
             elif response.status_code == 404:
@@ -88,9 +88,7 @@ class WorkflowUser(HttpUser):
                     "Deployment not found - check LOAD_TEST_DEPLOYMENT_SLUG_1"
                 )
             else:
-                response.failure(
-                    f"HTTP {response.status_code}: {(response.text or '')[:200]}"
-                )
+                response.failure(f"HTTP {response.status_code}")
 
 
 @events.test_start.add_listener

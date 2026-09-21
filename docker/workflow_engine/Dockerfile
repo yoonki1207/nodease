@@ -27,7 +27,8 @@ ARG MODEL_ROUTING_DIFFICULTY_MODEL_REVISION=d13f1b27baf31030b7fd040960d60d909913
 # [FIX] 의존성만 설치 (코드는 /app/에서 직접 사용, site-packages 중복 방지)
 # 1. pyproject.toml 기반으로 전체 설치 (의존성 해결을 위해)
 # 2. 설치 후 site-packages에서 workflow/services 코드 삭제 (코드 중복 방지)
-RUN if [ "$INSTALL_RAG_RERANKER" = "true" ]; then \
+RUN export PIP_DEFAULT_TIMEOUT=120 PIP_RETRIES=10 && \
+    if [ "$INSTALL_RAG_RERANKER" = "true" ]; then \
         pip install --no-cache-dir --prefix=/install "sentence-transformers>=3.0.0,<4.0.0"; \
     fi && \
     pip install --no-cache-dir --prefix=/install \

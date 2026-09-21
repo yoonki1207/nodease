@@ -464,7 +464,7 @@ services:
       dockerfile: docker/nginx/Dockerfile
     container_name: moduly-nginx
     ports:
-      - "80:80"
+      - "127.0.0.1:80:80"
     depends_on:
       frontend:
         condition: service_started
@@ -472,6 +472,7 @@ services:
         condition: service_started
     networks:
       - moduly-network
+      - web-ingress
     healthcheck:
       test:
         [
@@ -527,6 +528,9 @@ volumes:
   gateway_uploads:
 
 networks:
+  # Publishing a host port requires a non-internal network on the ingress only.
+  web-ingress:
+    driver: bridge
   moduly-network:
     driver: bridge
     internal: true
