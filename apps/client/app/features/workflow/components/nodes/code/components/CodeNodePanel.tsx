@@ -182,7 +182,7 @@ export function CodeNodePanel({ nodeId, data }: CodeNodePanelProps) {
                 </button>
               </div>
             </div>
-            <div className="flex-1">
+            <div className="nokey flex-1">
               <Editor
                 height="100%"
                 defaultLanguage="python"
@@ -273,7 +273,7 @@ export function CodeNodePanel({ nodeId, data }: CodeNodePanelProps) {
             </div>
 
             {/* 모달 내용 */}
-            <div className="flex-1 bg-gray-900">
+            <div className="nokey flex-1 bg-gray-900">
               <Editor
                 height="100%"
                 defaultLanguage="python"
