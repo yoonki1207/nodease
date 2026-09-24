@@ -1,0 +1,6 @@
+{
+  "command": "PYTHONPATH=. apps/gateway/.venv/bin/python -m pytest -q tests/ci/test_breakpoint_contract.py tests/ci/test_breakpoint_runner.py tests/ci/test_breakpoint_probe.py tests/ci/test_breakpoint_observer.py tests/ci/test_breakpoint_fixture.py",
+  "passed": 90,
+  "existing_warnings": 10,
+  "product_source_modified": false
+}

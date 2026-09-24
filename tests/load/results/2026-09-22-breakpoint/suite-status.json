@@ -1,0 +1,12 @@
+{
+  "completed_phases": 7,
+  "failure": "recovery_failed_after_600_seconds",
+  "finished_at": "2026-09-22T09:25:15.376274+00:00",
+  "remaining_tests_skipped": [
+    "C3",
+    "C-boundary-repeat",
+    "D-mixed-hold",
+    "remaining E comparisons"
+  ],
+  "test_data_preserved": true
+}

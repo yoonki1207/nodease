@@ -1,0 +1,70 @@
+services:
+  workflow_engine:
+    extra_hosts:
+      - "breakpoint-mock.nodease.invalid=93.184.216.254"
+    depends_on:
+      breakpoint_mock:
+        condition: service_healthy
+
+  proxy:
+    extra_hosts:
+      - "breakpoint-mock.nodease.invalid=93.184.216.254"
+    networks:
+      breakpoint-mock-route: {}
+
+  breakpoint_mock:
+    image: "${BREAKPOINT_MOCK_IMAGE:-docker-gateway:latest}"
+    entrypoint:
+      - python
+      - /mock.py
+      - --host
+      - 0.0.0.0
+      - --port
+      - "80"
+      - --max-concurrency
+      - "${BREAKPOINT_MOCK_MAX_CONCURRENCY:-300}"
+    volumes:
+      - type: bind
+        source: ../tests/load/breakpoint_mock.py
+        target: /mock.py
+        read_only: true
+    expose:
+      - "80"
+    ports:
+      - "127.0.0.1:${BREAKPOINT_MOCK_HOST_PORT:-18081}:80"
+    networks:
+      breakpoint-mock-route:
+        ipv4_address: 93.184.216.254
+      breakpoint-mock-ingress: {}
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    pids_limit: 384
+    mem_limit: 512m
+    cpus: 2.0
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1/health', timeout=3).read()"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  breakpoint-mock-route:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 93.184.216.248/29
+  breakpoint-mock-ingress:
+    driver: bridge

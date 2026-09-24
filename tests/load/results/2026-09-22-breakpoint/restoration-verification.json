@@ -1,0 +1,21 @@
+{
+  "nodease_page": 200,
+  "nodease_health": 200,
+  "grafana_health": 200,
+  "db_volume": "docker_postgres_data",
+  "compose_project": "docker",
+  "collector_available": true,
+  "up_containers": 11,
+  "collection_age_s": 16.30894708633423,
+  "verified_at": "2026-09-22T09:27:11.750123+00:00",
+  "all_images_match_restore_pins": true,
+  "changed_images_from_initial": [
+    "proxy"
+  ],
+  "test_volumes_preserved": [
+    "nodease-loadtest_gateway_uploads",
+    "nodease-loadtest_postgres_data",
+    "nodease-loadtest_redis_data"
+  ],
+  "normal_db_running": 0
+}

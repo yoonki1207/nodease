@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-09-22T09:25:09.110960+00:00",
+  "db_running": 67,
+  "elapsed_since_stop_s": 600.1653141975403,
+  "new_arrivals_stopped_at": "2026-09-22T09:15:08.945688+00:00",
+  "queues_and_unacked": 0
+}

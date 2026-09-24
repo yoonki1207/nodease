@@ -1,0 +1,13 @@
+{
+  "db_counts": {
+    "FAILED": 11,
+    "RUNNING": 67,
+    "SUCCESS": 806
+  },
+  "db_runs_without_returned_id": 11,
+  "db_total": 884,
+  "db_unique_inputs": 884,
+  "duplicate_inputs": 0,
+  "returned_runs_missing_db": 146,
+  "returned_unique_runs": 1019
+}

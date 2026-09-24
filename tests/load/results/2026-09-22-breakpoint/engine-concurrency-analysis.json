@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-22T09:27:09.493362+00:00",
+  "method": {
+    "event_source": "Historical local-only source: tests/load/reports/20260922T084100Z_breakpoint/events/workflow_engine-1.jsonl (excluded from commit)",
+    "pairing": "For each task_hash, pair the earliest engine_start with the latest engine_end and retain only non-negative intervals.",
+    "primary_mean": "Sum each paired engine interval's intersection with the primary wall-clock window, then divide by the window duration.",
+    "primary_max": "Sweep clipped interval boundaries, ordering ends before starts at equal timestamps, and retain the largest active count.",
+    "primary_windows": "Normal phases use measurement_started_at_utc through measurement_elapsed_s. B3 uses phase_anchor_utc through arrival_window.elapsed_s because it stopped during warmup.",
+    "full_phase_peak": "Select engine_start timestamps from phase_anchor_utc through arrival stop, then extend the window through the last matched engine_end in that cohort.",
+    "exclusion": "Database RUNNING counts and request or response payloads are not used."
+  },
+  "input_proof": {
+    "workflow_engine_event_lines": 37616,
+    "invalid_json_lines": 0,
+    "sha256": {
+      "workflow_engine_events": "eb5ecf24585157bba0751b68e996f43f4198520805892a7e2faa73098444ce66",
+      "A-baseline_summary": "3bd8d7e34e973f35c143d451a14a898c839189f0ef9c5dcfd26caf80d3ba3d9b",
+      "B1-rps-1_summary": "27045fd26f8e4f0e0a9cef5026250dc991b6648153b046ec5058d7d7c59559f9",
+      "B2-rps-2.5_summary": "d5a7e404a47dbe43769318bdd30b60739b09a07115803e8b4f2fde200b18c567",
+      "B3-rps-5_summary": "301199aef7ed101affb1fbb5f034f242d5cb5584292fc71eb1e9e01e7ed3d1ed",
+      "E-after-B_summary": "24a310cf68db131dedfd0d204ce8eb0a9f55a7baeb79ded625a3cffae008be0e",
+      "C1-rps-3.75_summary": "d8858b91143ba33acc968f9031aca48c0c495f585d15a3ae033fc1b87e917fb4",
+      "C2-rps-4.375_summary": "a9785b1adfebcb316ee69833ea45c0b105f703afe28118a2fa895c8f20128b31"
+    }
+  },
+  "global_pairing": {
+    "unique_engine_start_task_hashes": 3152,
+    "unique_engine_end_task_hashes": 3152,
+    "paired_task_hashes": 3152,
+    "missing_engine_end_count": 0,
+    "engine_end_without_start_count": 0
+  },
+  "phases": [
+    {
+      "phase": "A-baseline",
+      "target_rps": 0.5,
+      "primary_window_scope": "measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T08:47:38.232923+00:00",
+        "window_end_utc": "2026-09-22T08:51:38.232923+00:00",
+        "window_elapsed_s": 240.0,
+        "overlapping_task_count": 125,
+        "engine_busy_task_seconds": 1211.2390582561493,
+        "time_weighted_mean_overlap": 5.046829409400622,
+        "maximum_overlap": 6
+      },
+      "arrival_stop_utc": "2026-09-22T08:51:38.232923+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T08:46:38.232923+00:00",
+        "window_end_utc": "2026-09-22T08:51:46.365380+00:00",
+        "window_elapsed_s": 308.13245725631714,
+        "engine_start_count": 150,
+        "engine_end_count_for_started_tasks": 150,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 4.915468052668889,
+        "maximum_overlap": 6
+      }
+    },
+    {
+      "phase": "B1-rps-1",
+      "target_rps": 1.0,
+      "primary_window_scope": "measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T08:52:58.581075+00:00",
+        "window_end_utc": "2026-09-22T08:55:58.581075+00:00",
+        "window_elapsed_s": 180.0,
+        "overlapping_task_count": 190,
+        "engine_busy_task_seconds": 1819.7286484241486,
+        "time_weighted_mean_overlap": 10.109603602356382,
+        "maximum_overlap": 11
+      },
+      "arrival_stop_utc": "2026-09-22T08:55:58.581075+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T08:51:58.581075+00:00",
+        "window_end_utc": "2026-09-22T08:56:07.712454+00:00",
+        "window_elapsed_s": 249.13137888908386,
+        "engine_start_count": 240,
+        "engine_end_count_for_started_tasks": 240,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 9.733173132017257,
+        "maximum_overlap": 11
+      }
+    },
+    {
+      "phase": "B2-rps-2.5",
+      "target_rps": 2.5,
+      "primary_window_scope": "measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T08:57:18.821826+00:00",
+        "window_end_utc": "2026-09-22T09:00:18.821826+00:00",
+        "window_elapsed_s": 180.0,
+        "overlapping_task_count": 475,
+        "engine_busy_task_seconds": 4546.0626657009125,
+        "time_weighted_mean_overlap": 25.255903698338404,
+        "maximum_overlap": 28
+      },
+      "arrival_stop_utc": "2026-09-22T09:00:18.821826+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T08:56:18.821826+00:00",
+        "window_end_utc": "2026-09-22T09:00:28.513622+00:00",
+        "window_elapsed_s": 249.69179558753967,
+        "engine_start_count": 600,
+        "engine_end_count_for_started_tasks": 600,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 24.267511892725242,
+        "maximum_overlap": 28
+      }
+    },
+    {
+      "phase": "B3-rps-5",
+      "target_rps": 5.0,
+      "primary_window_scope": "warmup_if_aborted_before_measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T09:00:39.116144+00:00",
+        "window_end_utc": "2026-09-22T09:00:52.051813+00:00",
+        "window_elapsed_s": 12.935669183731079,
+        "overlapping_task_count": 61,
+        "engine_busy_task_seconds": 383.75585889816284,
+        "time_weighted_mean_overlap": 29.66648678529941,
+        "maximum_overlap": 48
+      },
+      "arrival_stop_utc": "2026-09-22T09:00:52.051813+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T09:00:39.116144+00:00",
+        "window_end_utc": "2026-09-22T09:01:02.023987+00:00",
+        "window_elapsed_s": 22.907843112945557,
+        "engine_start_count": 61,
+        "engine_end_count_for_started_tasks": 61,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 25.96322755398285,
+        "maximum_overlap": 48
+      }
+    },
+    {
+      "phase": "E-after-B",
+      "target_rps": 0.5,
+      "primary_window_scope": "measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T09:02:30.342258+00:00",
+        "window_end_utc": "2026-09-22T09:06:30.342258+00:00",
+        "window_elapsed_s": 240.0,
+        "overlapping_task_count": 125,
+        "engine_busy_task_seconds": 1211.9595217704773,
+        "time_weighted_mean_overlap": 5.049831340710322,
+        "maximum_overlap": 7
+      },
+      "arrival_stop_utc": "2026-09-22T09:06:30.342258+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T09:01:30.342258+00:00",
+        "window_end_utc": "2026-09-22T09:06:36.486369+00:00",
+        "window_elapsed_s": 306.1441111564636,
+        "engine_start_count": 150,
+        "engine_end_count_for_started_tasks": 150,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 4.924069858587066,
+        "maximum_overlap": 7
+      }
+    },
+    {
+      "phase": "C1-rps-3.75",
+      "target_rps": 3.75,
+      "primary_window_scope": "measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T09:07:48.603179+00:00",
+        "window_end_utc": "2026-09-22T09:10:48.603179+00:00",
+        "window_elapsed_s": 180.0,
+        "overlapping_task_count": 712,
+        "engine_busy_task_seconds": 6855.323040485382,
+        "time_weighted_mean_overlap": 38.085128002696564,
+        "maximum_overlap": 46
+      },
+      "arrival_stop_utc": "2026-09-22T09:10:48.603179+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T09:06:48.603179+00:00",
+        "window_end_utc": "2026-09-22T09:10:58.461472+00:00",
+        "window_elapsed_s": 249.85829329490662,
+        "engine_start_count": 900,
+        "engine_end_count_for_started_tasks": 900,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 36.52125590150726,
+        "maximum_overlap": 46
+      }
+    },
+    {
+      "phase": "C2-rps-4.375",
+      "target_rps": 4.375,
+      "primary_window_scope": "measurement",
+      "primary_window": {
+        "window_start_utc": "2026-09-22T09:12:08.945688+00:00",
+        "window_end_utc": "2026-09-22T09:15:08.945688+00:00",
+        "window_elapsed_s": 180.0,
+        "overlapping_task_count": 818,
+        "engine_busy_task_seconds": 7847.598064422607,
+        "time_weighted_mean_overlap": 43.59776702457004,
+        "maximum_overlap": 48
+      },
+      "arrival_stop_utc": "2026-09-22T09:15:08.945688+00:00",
+      "full_phase": {
+        "window_start_utc": "2026-09-22T09:11:08.945688+00:00",
+        "window_end_utc": "2026-09-22T09:15:18.927596+00:00",
+        "window_elapsed_s": 249.98190784454346,
+        "engine_start_count": 1031,
+        "engine_end_count_for_started_tasks": 1031,
+        "missing_engine_end_count": 0,
+        "missing_engine_end_task_hashes": [],
+        "time_weighted_mean_overlap": 41.69058421353575,
+        "maximum_overlap": 48
+      }
+    }
+  ],
+  "c2_context_only_not_used_in_calculation": {
+    "whole_requests": 1050,
+    "http_200": 1019,
+    "http_500": 31,
+    "measurement_requests": 787,
+    "measurement_errors": 20,
+    "db_running_observed": 67,
+    "returned_missing_db_observed": 146
+  },
+  "findings": [
+    "Measured engine overlap rose from 5.05 mean / 6 max at 0.5 RPS to 38.09 mean / 46 max at the passing 3.75 RPS phase.",
+    "The aborted 5 RPS warmup reached 48 concurrent engine executions within its 12.94-second observed window; its partial-window mean was 29.67 and is not a steady-state performance result.",
+    "The failing 4.375 RPS measurement averaged 43.60 concurrent engine executions and peaked at 48, the same observed ceiling reached by the aborted 5 RPS warmup.",
+    "All 3152 engine_start task hashes in the captured event stream have a matching engine_end. C2 has 1031 matched starts through arrival stop and zero missing ends in that cohort; the observed DB RUNNING and returned-missing counts therefore are not actual engine-concurrency counts."
+  ]
+}

@@ -1,8 +1,10 @@
 # Nodease 로컬 셀프호스팅 부하 테스트
 
-이 디렉토리는 Docker Compose로 실행한 Nodease를 현재 Mac에서 검증하는 Locust 도구다. 첫 단계는 외부 LLM, RAG, HTTP, Sandbox 호출이 없는 `startNode → templateNode → answerNode` 워크플로만 사용한다.
+이 디렉토리는 Docker Compose로 실행한 Nodease를 현재 Mac에서 검증하는 Locust 및 단계별 HTTP 부하 도구다. 기본 시나리오는 외부 LLM, RAG, HTTP, Sandbox 호출이 없는 `startNode → templateNode → answerNode`를 사용하고, 한계 탐색 시험은 전용 HTTP mock으로 10초 I/O 대기를 재현한다.
 
 이 결과는 로컬 엔지니어링 기준선이며 엔터프라이즈 운영 용량이나 SLA를 뜻하지 않는다. 첫 실행은 탐색적 기준선이고, 측정 결과를 본 뒤 p95/p99·오류율 기준을 확정한 두 번째 실행부터 합격/불합격을 판정한다.
+
+실패 지점까지 부하를 높이는 시험은 [실패 한계 탐색 계획](BREAKPOINT_TEST_PLAN.md)에 정리했다. 당시 준비 절차와 수동 단계 실행·복구 상한은 [실행 기록과 단계별 명령](BREAKPOINT_RUNBOOK.md)에 남겼다. [2026-09-22 실행 결과](results/2026-09-22-breakpoint/summary.md)에서는 3.75 RPS가 통과했고, 4.375 RPS의 DB 연결 고갈·실행 기록 손실이 10분 안에 회복되지 않아 후속 시험을 중단했다. 일반 환경은 복구했다. 이번 결과는 단일 회차이며 운영 용량을 확정하지 않는다.
 
 ## 기준 워크로드
 

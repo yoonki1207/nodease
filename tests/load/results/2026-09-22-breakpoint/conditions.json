@@ -1,0 +1,12 @@
+{
+  "docker_resources": {
+    "cpu": 8,
+    "memory_bytes": 8215117824
+  },
+  "fixture": "io-10s",
+  "head": "2c6bda2f5e4bfe8c8c126278ca5dce13bd86f6f0",
+  "pg_max_connections": 100,
+  "proxy_image_replaced": true,
+  "recovery_plan": "A B E C E D E",
+  "started_at": "2026-09-22T08:44:29.549881+00:00"
+}
